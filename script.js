@@ -36,7 +36,7 @@ function drawWheel() {
         ctx.fill();
 
         ctx.save();
-        ctx.rotate(start + angle / 2 + currentRotation);
+        ctx.rotate(start + angle / 2);
 
         ctx.fillStyle = "white";
         ctx.font = "bold 12px Arial";
