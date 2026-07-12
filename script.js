@@ -40,7 +40,7 @@ function drawWheel() {
 
         ctx.fillStyle = "white";
         ctx.font = "bold 12px Arial";
-        ctx.textAlign = "right";
+        ctx.textAlign = "center";
         ctx.fillText(prize, radius - 15, 5);
         ctx.restore();
     });
