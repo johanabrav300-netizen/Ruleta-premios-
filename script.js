@@ -36,22 +36,22 @@ function drawWheel() {
         ctx.fill();
 
         ctx.save();
+        ctx.translate(center, center);
         ctx.rotate(start + angle / 2);
-
+        
         ctx.fillStyle = "white";
-        ctx.font = "bold 12px Arial";
+        ctx.font = "bold 16px Arial";
         ctx.textAlign = "center";
-        ctx.fillText(prize, radius - 15, 5);
+        
+        ctx.fillText(prize, radius / 2, 5);
         ctx.restore();
     });
 
-    ctx.restore(); // Cierre global correcto del lienzo
+    ctx.restore();
 }
 
-// Inicializar dibujo estático al cargar
 let isSpinning = false;
 let currentRotation = 0;
-drawWheel();
 
 function iniciarGiro() {
     result.innerText = "¡Mucha suerte...!";
@@ -62,7 +62,6 @@ function iniciarGiro() {
     function animar() {
         currentRotation += velocidad;
         velocidad *= desaceleracion;
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawWheel();
 
@@ -79,13 +78,12 @@ function iniciarGiro() {
 function calcularPremio() {
     const rotacionNormalizada = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
     const anguloMarcador = (3 * Math.PI / 2) % (2 * Math.PI);
-    let anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
-
+    const anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    // Bloqueo o desvío manual de premios si es necesario
+    // BLOQUEO DE PREMIOS 16, 17 y 18 (Índices 15, 16 y 17)
     if (index === 15 || index === 16 || index === 17) {
-        index = 0;
+        index = 0; // Se cambia silenciosamente al Premio 1
     }
 
     result.innerText = `🎉 ¡Ganaste: ${prizes[index]}!`;
@@ -93,7 +91,6 @@ function calcularPremio() {
 
 spinBtn.addEventListener("click", async () => {
     if (isSpinning) return;
-
     const inputCodigo = document.getElementById("codigo");
     const codigoIngresado = inputCodigo.value.trim().toUpperCase();
 
@@ -108,13 +105,8 @@ spinBtn.addEventListener("click", async () => {
 
         if (docSnap.exists()) {
             const datosCupon = docSnap.data();
-
             if (datosCupon.usado === false) {
-                await updateDoc(docRef, {
-                    usado: true,
-                    fechaUso: new Date()
-                });
-
+                await updateDoc(docRef, { usado: true, fechaUso: new Date() });
                 isSpinning = true;
                 iniciarGiro();
             } else {
@@ -128,4 +120,6 @@ spinBtn.addEventListener("click", async () => {
         alert("Error al conectar con la base de datos.");
     }
 });
-          
+
+// Dibujo inicial
+drawWheel();
