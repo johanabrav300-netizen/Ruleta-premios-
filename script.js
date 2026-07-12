@@ -130,24 +130,41 @@ let currentRotation = 0;
 
 // Función que maneja la animación física del giro
 function iniciarGiro() {
-  result.innerText = "¡Mucha suerte...!";
-  const vInicial = Math.random() * 0.4 + 0.3;
-  let velocidad = vInicial;
-  const desaceleracion = 0.985;
+    result.innerText = "¡Mucha suerte...!";
+    const vInicial = Math.random() * 0.4 + 0.3;
+    let velocidad = vInicial;
+    const desaceleracion = 0.985;
 
-  function animar() {
-    currentRotation += velocidad;
-    velocidad *= desaceleracion;
-    drawWheel();
+    function animar() {
+        currentRotation += velocidad; // Incrementa el ángulo de giro
+        velocidad *= desaceleracion;  // Aplica la fricción para frenar
 
-    if (velocidad > 0.001) {
-      requestAnimationFrame(animar);
-    } else {
-      isSpinning = false;
-      calcularPremio();
+        // 1. Limpiamos por completo el lienzo antes de redibujar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 2. Guardamos el estado limpio del contexto
+        ctx.save();
+        
+        // 3. Aplicamos la rotación global a todo el lienzo usando la rotación actual
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(currentRotation);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        
+        // 4. Dibujamos la ruleta en la nueva posición rotada
+        drawWheel();
+        
+        // 5. Restauramos el contexto para el próximo fotograma
+        ctx.restore();
+
+        if (velocidad > 0.001) {
+            requestAnimationFrame(animar); // Continúa el bucle de animación
+        } else {
+            isSpinning = false;
+            calcularPremio(); // Ejecuta el cálculo del premio al detenerse por completo
+        }
     }
-  }
-  animar();
+
+    animar(); // Arranca la animación física
 }
 
 // Función para calcular matemáticamente qué premio cayó
