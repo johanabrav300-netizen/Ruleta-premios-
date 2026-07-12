@@ -151,6 +151,8 @@ function iniciarGiro() {
             isSpinning = false;
             calcularPremio(); // Da el premio al detenerse
         }
+ ctx.restore();
+          
     }
 
     animar(); // Arranca la animación
