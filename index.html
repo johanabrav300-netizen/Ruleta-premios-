@@ -1,20 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta de Premios</title>
-    <link rel="stylesheet" href="./style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruleta de Premios</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-    <h1>Mi Ruleta de Premios</h1>
+<div class="container">
 
-    <button id="spinBtn">Girar</button>
+    <h1>🎉 RULETA DE PREMIOS 🎉</h1>
 
-    <p id="resultado"></p>
+    <input
+        type="text"
+        id="codigo"
+        placeholder="Ingrese su código"
+    >
 
-    <script src="./script.js"></script>
+    <div class="wheel-container">
+
+        <div class="pointer"></div>
+
+        <canvas
+            id="wheel"
+            width="600"
+            height="600">
+        </canvas>
+
+    </div>
+
+    <button id="spinBtn">
+        GIRAR
+    </button>
+
+    <p id="result"></p>
+
+</div>
+
+<script src="./script.js"></script>
 
 </body>
 </html>
