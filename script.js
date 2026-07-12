@@ -6,7 +6,7 @@ const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinBtn");
 const result = document.getElementById("result");
 
-// Lista personalizada en tu orden exacto
+// Lista con tu orden específico
 const prizes = [
     "Premio 1", "Premio 20", "Premio 10", "Premio 15", "Premio 3", 
     "Premio 18", "Premio 12", "Premio 5", "Premio 2", "Premio 19", 
@@ -16,6 +16,8 @@ const prizes = [
 
 const colors = ["#ff595e", "#ff924c", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"];
 const angle = (2 * Math.PI) / prizes.length;
+let isSpinning = false;
+let currentRotation = 0;
 
 function drawWheel() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -38,7 +40,7 @@ function drawWheel() {
 
         ctx.save();
         ctx.rotate(start + angle / 2);
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "black"; // Texto en negro para que resalte
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(prize, radius / 2, 5); 
@@ -46,9 +48,6 @@ function drawWheel() {
     });
     ctx.restore();
 }
-
-let isSpinning = false;
-let currentRotation = 0;
 
 function iniciarGiro() {
     result.innerText = "¡Mucha suerte...!";
@@ -76,9 +75,9 @@ function calcularPremio() {
     const anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    // SEGURIDAD: Si cae en 16, 17 o 18 (que ahora están en posiciones fijas), 
-    // redirigimos el resultado al Premio 1 (índice 0)
-    if (prizes[index] === "Premio 16" || prizes[index] === "Premio 17" || prizes[index] === "Premio 18") {
+    // Bloqueo estricto: si cae en 16, 17 o 18, lo cambiamos al Premio 1
+    const premioActual = prizes[index];
+    if (premioActual === "Premio 16" || premioActual === "Premio 17" || premioActual === "Premio 18") {
         index = 0; 
     }
 
@@ -89,6 +88,7 @@ spinBtn.addEventListener("click", async () => {
     if (isSpinning) return;
     const inputCodigo = document.getElementById("codigo").value.trim().toUpperCase();
     if (!inputCodigo) { alert("Ingrese un código."); return; }
+    
     try {
         const docRef = doc(db, "Tokens", inputCodigo);
         const docSnap = await getDoc(docRef);
@@ -103,3 +103,4 @@ spinBtn.addEventListener("click", async () => {
 });
 
 drawWheel();
+    
