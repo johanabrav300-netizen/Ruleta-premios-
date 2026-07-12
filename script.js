@@ -1,3 +1,8 @@
+import { db } from "./firebase-config.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// ... aquí abajo continúa tu código normal (const canvas = document.getElementById("wheel");, etc.)
+
 const canvas =
 document.getElementById("wheel");
 
