@@ -119,81 +119,84 @@ function drawWheel(){
 
 drawWheel();
 
-let played = false;
+// Variable para evitar que hagan click mientras la ruleta ya está girando
+let isSpinning = false;
+let currentRotation = 0;
 
-spinBtn.addEventListener(
-"click",
-()=>{
+// Función que maneja la animación física del giro
+function iniciarGiro() {
+  result.innerText = "¡Mucha suerte...!";
+  const vInicial = Math.random() * 0.4 + 0.3;
+  let velocidad = vInicial;
+  const desaceleracion = 0.985;
 
-    if(played){
+  function animar() {
+    currentRotation += velocidad;
+    velocidad *= desaceleracion;
+    drawWheel();
 
-        alert(
-        "Ya utilizaste tu giro."
-        );
-
-        return;
+    if (velocidad > 0.001) {
+      requestAnimationFrame(animar);
+    } else {
+      isSpinning = false;
+      calcularPremio();
     }
+  }
+  animar();
+}
 
-    const codigo =
-    document
-    .getElementById(
-    "codigo"
-    )
-    .value
-    .trim();
+// Función para calcular matemáticamente qué premio cayó
+function calcularPremio() {
+  const rotacionNormalizada = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
+  const anguloMarcador = (3 * Math.PI / 2) % (2 * Math.PI);
+  let anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
 
-    if(!codigo){
+  let index = Math.floor(anguloPremio / angle);
 
-        alert(
-        "Ingrese un código."
-        );
+  // 🚫 BLOQUEO DE PREMIOS 16, 17 y 18 (Índices 15, 16 y 17)
+  if (index === 15 || index === 16 || index === 17) {
+    index = 0; // Se cambia silenciosamente al Premio 1
+  }
 
-        return;
+  result.innerText = `🎉 ¡Ganaste: ${prizes[index]}!`;
+}
+
+// Evento del botón conectado a Firebase
+spinBtn.addEventListener("click", async () => {
+  if (isSpinning) return; 
+
+  const inputCodigo = document.getElementById("codigo");
+  const codigoIngresado = inputCodigo.value.trim().toUpperCase();
+
+  if (!codigoIngresado) {
+    alert("Ingrese un código.");
+    return;
+  }
+
+  try {
+    const docRef = doc(db, "Tokens", codigoIngresado);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const datosCupon = docSnap.data();
+
+      if (datosCupon.usado === false) {
+        await updateDoc(docRef, {
+          usado: true,
+          fechaUso: new Date()
+        });
+
+        isSpinning = true;
+        iniciarGiro(); 
+
+      } else {
+        alert("Este código ya fue utilizado.");
+      }
+    } else {
+      alert("El código ingresado no existe.");
     }
-
-    played = true;
-
-    const available = prizes.filter(
-    p =>
-    p !== "Premio 16" &&
-    p !== "Premio 17" &&
-    p !== "Premio 18"
-    );
-
-    const winner =
-    available[
-    Math.floor(
-    Math.random()*
-    available.length
-    )
-    ];
-
-    const winnerIndex =
-    prizes.indexOf(
-    winner
-    );
-
-    const degrees =
-    (360/prizes.length)
-    *
-    winnerIndex;
-
-    const rotation =
-    3600 +
-    (360-degrees);
-
-    canvas.style.transition =
-    "transform 6s ease-out";
-
-    canvas.style.transform =
-    `rotate(${rotation}deg)`;
-
-    setTimeout(()=>{
-
-        result.textContent =
-        "🎉 Ganaste: "
-        + winner;
-
-    },6000);
-
+  } catch (error) {
+    console.error(error);
+    alert("Error al conectar con la base de datos.");
+  }
 });
