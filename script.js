@@ -122,6 +122,7 @@ function drawWheel(){
 }
 
 drawWheel();
+ctx.restore();
 
 // Variable para evitar que hagan click mientras la ruleta ya está girando
 let isSpinning = false;
