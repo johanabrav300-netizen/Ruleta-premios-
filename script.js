@@ -52,6 +52,11 @@ const angle =
 
 function drawWheel(){
 
+      ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(currentRotation);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    
     const center =
     canvas.width/2;
 
@@ -92,11 +97,8 @@ function drawWheel(){
 
         ctx.save();
 
-        ctx.translate(
-        center,
-        center
-        );
-
+        ctx.rotate(start + angle / 2 + currentRotation);
+        
         ctx.rotate(
         start+
         angle/2
@@ -136,36 +138,24 @@ function iniciarGiro() {
     const desaceleracion = 0.985;
 
     function animar() {
-        currentRotation += velocidad; // Incrementa el ángulo de giro
+        currentRotation += velocidad; // Incrementa el ángulo de giro global
         velocidad *= desaceleracion;  // Aplica la fricción para frenar
 
-        // 1. Limpiamos por completo el lienzo antes de redibujar
+        // Limpiamos y redibujamos la ruleta
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // 2. Guardamos el estado limpio del contexto
-        ctx.save();
-        
-        // 3. Aplicamos la rotación global a todo el lienzo usando la rotación actual
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(currentRotation);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-        
-        // 4. Dibujamos la ruleta en la nueva posición rotada
-        drawWheel();
-        
-        // 5. Restauramos el contexto para el próximo fotograma
-        ctx.restore();
+        drawWheel(); 
 
         if (velocidad > 0.001) {
-            requestAnimationFrame(animar); // Continúa el bucle de animación
+            requestAnimationFrame(animar); // Continúa el bucle
         } else {
             isSpinning = false;
-            calcularPremio(); // Ejecuta el cálculo del premio al detenerse por completo
+            calcularPremio(); // Da el premio al detenerse
         }
     }
 
-    animar(); // Arranca la animación física
+    animar(); // Arranca la animación
 }
+
 
 // Función para calcular matemáticamente qué premio cayó
 function calcularPremio() {
