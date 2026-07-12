@@ -99,10 +99,7 @@ function drawWheel(){
 
         ctx.rotate(start + angle / 2 + currentRotation);
         
-        ctx.rotate(
-        start+
-        angle/2
-        );
+        
 
         ctx.fillStyle =
         "white";
