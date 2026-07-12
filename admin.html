@@ -5,48 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Cupones</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #1a233a; color: white; text-align: center; }
-        button { background-color: #ff5722; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #1a237e; color: white; text-align: center; }
+        button { background-color: #ff5722; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         button:active { background-color: #e64a19; }
-        textarea { width: 100%; max-width: 400px; height: 180px; margin-top: 20px; padding: 10px; border-radius: 5px; border: none; font-size: 14px; background-color: #2e3b5e; color: white; }
+        textarea { width: 100%; max-width: 400px; height: 250px; margin-top: 20px; padding: 10px; border-radius: 5px; border: none; font-family: monospace; background-color: #fff; color: #000; }
     </style>
 </head>
 <body>
+
     <h2>Generador Automático de Tokens</h2>
-    <p>Presiona el botón para crear 50 tokens válidos de un solo uso en Firebase.</p>
-    <button id="btnGenerar">Generar 50 Tokens</button>
+    <p>Presiona el botón para crear 100 tokens válidos de un solo uso en Firebase.</p>
+    <button id="btnGenerar">Generar 100 Tokens</button>
     <br>
     <textarea id="resultado" readonly placeholder="Los códigos generados aparecerán aquí..."></textarea>
 
     <script type="module">
-        import { db, doc, setDoc } from "./firebase-config.js";
+        import { db } from "./firebase-config.js";
+        import { doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         document.getElementById("btnGenerar").addEventListener("click", async () => {
-            const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const btn = document.getElementById("btnGenerar");
             const textarea = document.getElementById("resultado");
-            textarea.value = "Generando en Firebase... por favor espera\n";
-            let codigosCreados = [];
+            
+            btn.disabled = true;
+            btn.innerText = "Generando...";
+            textarea.value = "Subiendo tokens a Firebase, por favor espera...\n";
 
-            for (let i = 0; i < 50; i++) {
+            const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const batch = writeBatch(db);
+            const codigosCreados = [];
+
+            // Bucle optimizado para generar 100 códigos
+            for (let i = 0; i < 100; i++) {
                 let nuevoCodigo = "";
                 for (let j = 0; j < 6; j++) {
                     nuevoCodigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
                 }
+                
+                codigosCreados.push(nuevoCodigo);
 
-                try {
-                    // Guarda el token en tu colección "Tokens"
-                    await setDoc(doc(db, "Tokens", nuevoCodigo), {
-                        usado: false,
-                        fechaCreacion: new Date()
-                    });
-                    codigosCreados.push(nuevoCodigo);
-                    textarea.value += `Creado: ${nuevoCodigo}\n`;
-                } catch (e) {
-                    console.error("Error al crear:", e);
-                }
+                // Preparamos el lote para la colección "Tokens"
+                const docRef = doc(db, "Tokens", nuevoCodigo);
+                batch.set(docRef, {
+                    usado: false,
+                    FechaCreacion: new Date()
+                });
             }
-            textarea.value += "\n¡Listo! Copia tus nuevos códigos:\n\n" + codigosCreados.join(", ");
+
+            try {
+                // Sube los 100 documentos juntos a Firebase en un solo milisegundo
+                await batch.commit();
+                
+                textarea.value = "¡Lista creada con éxito!\n\nCopia tus nuevos códigos:\n\n" + codigosCreados.join("\n");
+                alert("¡Los 100 cupones se crearon correctamente en Firebase!");
+            } catch (e) {
+                console.error("Error al crear:", e);
+                alert("Hubo un error al conectar con Firebase.");
+                textarea.value = "Error al generar los tokens.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Generar 100 Tokens";
+            }
         });
     </script>
 </body>
 </html>
+
