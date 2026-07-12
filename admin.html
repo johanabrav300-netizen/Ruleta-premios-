@@ -20,54 +20,49 @@
     <textarea id="resultado" readonly placeholder="Los códigos generados aparecerán aquí..."></textarea>
 
     <script type="module">
-        import { db } from "./firebase-config.js";
-        import { doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { db } from "./firebase-config.js";
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        document.getElementById("btnGenerar").addEventListener("click", async () => {
-            const btn = document.getElementById("btnGenerar");
-            const textarea = document.getElementById("resultado");
-            
-            btn.disabled = true;
-            btn.innerText = "Generando...";
-            textarea.value = "Subiendo tokens a Firebase, por favor espera...\n";
+    document.getElementById("btnGenerar").addEventListener("click", async () => {
+        const btn = document.getElementById("btnGenerar");
+        const textarea = document.getElementById("resultado");
 
-            const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            const batch = writeBatch(db);
-            const codigosCreados = [];
+        btn.disabled = true;
+        btn.innerText = "Generando...";
+        textarea.value = "Subiendo tokens a Firebase, por favor espera...\n";
 
-            // Bucle optimizado para generar 100 códigos
+        const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const codigosCreados = [];
+
+        try {
             for (let i = 0; i < 100; i++) {
                 let nuevoCodigo = "";
                 for (let j = 0; j < 6; j++) {
                     nuevoCodigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
                 }
-                
                 codigosCreados.push(nuevoCodigo);
 
-                // Preparamos el lote para la colección "Tokens"
                 const docRef = doc(db, "Tokens", nuevoCodigo);
-                batch.set(docRef, {
+                await setDoc(docRef, {
                     usado: false,
                     FechaCreacion: new Date()
                 });
             }
 
-            try {
-                // Sube los 100 documentos juntos a Firebase en un solo milisegundo
-                await batch.commit();
-                
-                textarea.value = "¡Lista creada con éxito!\n\nCopia tus nuevos códigos:\n\n" + codigosCreados.join("\n");
-                alert("¡Los 100 cupones se crearon correctamente en Firebase!");
-            } catch (e) {
-                console.error("Error al crear:", e);
-                alert("Hubo un error al conectar con Firebase.");
-                textarea.value = "Error al generar los tokens.";
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Generar 100 Tokens";
-            }
-        });
+            textarea.value = "¡Lista creada con éxito!\n\nCopia tus nuevos códigos:\n\n" + codigosCreados.join("\n");
+            alert("¡Los 100 cupones se crearon correctamente en Firebase!");
+
+        } catch (e) {
+            console.error("Error al crear:", e);
+            alert("Hubo un error al conectar con Firebase: " + e.message);
+            textarea.value = "Error al generar los tokens.";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Generar 100 Tokens";
+        }
+    });
     </script>
+    
 </body>
 </html>
 
