@@ -17,33 +17,35 @@ const colors = ["#ff595e", "#ff924c", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"
 const angle = (2 * Math.PI) / prizes.length;
 
 function drawWheel() {
+    // 1. Limpiar todo el lienzo
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 2. Aplicar rotación global
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(currentRotation);
-    ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-    const center = canvas.width / 2;
     const radius = canvas.width / 2;
 
     prizes.forEach((prize, index) => {
         const start = index * angle;
         const end = start + angle;
 
+        // Dibujar rebanada
         ctx.beginPath();
-        ctx.moveTo(center, center);
-        ctx.arc(center, center, radius, start, end);
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, start, end);
+        ctx.closePath();
         ctx.fillStyle = colors[index % colors.length];
         ctx.fill();
 
+        // Dibujar texto
         ctx.save();
-        ctx.translate(center, center);
         ctx.rotate(start + angle / 2);
-        
-        ctx.fillStyle = "white";
-        ctx.font = "bold 16px Arial";
+        ctx.fillStyle = "black"; // Color forzado para ver si aparece
+        ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
-        
-        ctx.fillText(prize, radius / 2, 5);
+        ctx.fillText(prize, radius / 2, 5); 
         ctx.restore();
     });
 
@@ -62,8 +64,8 @@ function iniciarGiro() {
     function animar() {
         currentRotation += velocidad;
         velocidad *= desaceleracion;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawWheel();
+        
+        drawWheel(); // Redibuja todo con la nueva rotación
 
         if (velocidad > 0.001) {
             requestAnimationFrame(animar);
@@ -81,43 +83,34 @@ function calcularPremio() {
     const anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    // BLOQUEO DE PREMIOS 16, 17 y 18 (Índices 15, 16 y 17)
     if (index === 15 || index === 16 || index === 17) {
-        index = 0; // Se cambia silenciosamente al Premio 1
+        index = 0;
     }
-
     result.innerText = `🎉 ¡Ganaste: ${prizes[index]}!`;
 }
 
 spinBtn.addEventListener("click", async () => {
     if (isSpinning) return;
-    const inputCodigo = document.getElementById("codigo");
-    const codigoIngresado = inputCodigo.value.trim().toUpperCase();
+    const inputCodigo = document.getElementById("codigo").value.trim().toUpperCase();
 
-    if (!codigoIngresado) {
+    if (!inputCodigo) {
         alert("Ingrese un código.");
         return;
     }
 
     try {
-        const docRef = doc(db, "Tokens", codigoIngresado);
+        const docRef = doc(db, "Tokens", inputCodigo);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            const datosCupon = docSnap.data();
-            if (datosCupon.usado === false) {
-                await updateDoc(docRef, { usado: true, fechaUso: new Date() });
-                isSpinning = true;
-                iniciarGiro();
-            } else {
-                alert("Este código ya fue utilizado.");
-            }
+        if (docSnap.exists() && docSnap.data().usado === false) {
+            await updateDoc(docRef, { usado: true, fechaUso: new Date() });
+            isSpinning = true;
+            iniciarGiro();
         } else {
-            alert("El código ingresado no existe.");
+            alert("Código inválido o ya utilizado.");
         }
-    } catch (error) {
-        console.error(error);
-        alert("Error al conectar con la base de datos.");
+    } catch (e) {
+        alert("Error de conexión.");
     }
 });
 
