@@ -6,21 +6,30 @@ const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinBtn");
 const result = document.getElementById("result");
 
-const prizes = [
+// Lista filtrada: eliminamos el 16, 17 y 18 desde el origen
+let prizes = [
     "Premio 1", "Premio 2", "Premio 3", "Premio 4", "Premio 5",
     "Premio 6", "Premio 7", "Premio 8", "Premio 9", "Premio 10",
     "Premio 11", "Premio 12", "Premio 13", "Premio 14", "Premio 15",
-    "Premio 16", "Premio 17", "Premio 18", "Premio 19", "Premio 20"
+    "Premio 19", "Premio 20" 
 ];
+
+// Función para mezclar los premios al azar
+function shufflePrizes(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Mezclar los premios restantes
+shufflePrizes(prizes);
 
 const colors = ["#ff595e", "#ff924c", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"];
 const angle = (2 * Math.PI) / prizes.length;
 
 function drawWheel() {
-    // 1. Limpiar todo el lienzo
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // 2. Aplicar rotación global
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(currentRotation);
@@ -31,7 +40,6 @@ function drawWheel() {
         const start = index * angle;
         const end = start + angle;
 
-        // Dibujar rebanada
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.arc(0, 0, radius, start, end);
@@ -39,10 +47,9 @@ function drawWheel() {
         ctx.fillStyle = colors[index % colors.length];
         ctx.fill();
 
-        // Dibujar texto
         ctx.save();
         ctx.rotate(start + angle / 2);
-        ctx.fillStyle = "black"; // Color forzado para ver si aparece
+        ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(prize, radius / 2, 5); 
@@ -64,8 +71,7 @@ function iniciarGiro() {
     function animar() {
         currentRotation += velocidad;
         velocidad *= desaceleracion;
-        
-        drawWheel(); // Redibuja todo con la nueva rotación
+        drawWheel();
 
         if (velocidad > 0.001) {
             requestAnimationFrame(animar);
@@ -83,25 +89,19 @@ function calcularPremio() {
     const anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    if (index === 15 || index === 16 || index === 17) {
-        index = 0;
-    }
     result.innerText = `🎉 ¡Ganaste: ${prizes[index]}!`;
 }
 
 spinBtn.addEventListener("click", async () => {
     if (isSpinning) return;
     const inputCodigo = document.getElementById("codigo").value.trim().toUpperCase();
-
     if (!inputCodigo) {
         alert("Ingrese un código.");
         return;
     }
-
     try {
         const docRef = doc(db, "Tokens", inputCodigo);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists() && docSnap.data().usado === false) {
             await updateDoc(docRef, { usado: true, fechaUso: new Date() });
             isSpinning = true;
@@ -114,5 +114,4 @@ spinBtn.addEventListener("click", async () => {
     }
 });
 
-// Dibujo inicial
 drawWheel();
