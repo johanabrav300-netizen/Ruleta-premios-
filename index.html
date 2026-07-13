@@ -4,299 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jugá y Ganá - Ruleta de Premios</title>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        body {
-            background-color: #ededed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        .decoracion-top {
-            position: absolute;
-            top: 20px;
-            left: 10%;
-            width: 150px;
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .decoracion-bottom {
-            position: absolute;
-            bottom: 40px;
-            right: 5%;
-            width: 120px;
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .contenedor {
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            padding: 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .titulo-juga {
-            font-size: 28px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: -5px;
-            color: #222;
-            user-select: none;
-        }
-
-        .titulo-gana {
-            font-size: 55px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #ff69b4;
-            text-shadow: 2px 2px 0px #000;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            user-select: none;
-            cursor: pointer;
-        }
-
-        .subtitulo {
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #555;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-            padding: 0 20px;
-        }
-
-        .seccion-token {
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            border: 2px dashed #ff69b4;
-        }
-
-        .seccion-token input {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .seccion-token button {
-            padding: 10px 15px;
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-
-        .ruleta-wrapper {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto 30px auto;
-        }
-
-        .marcador {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #000;
-            z-index: 100;
-        }
-
-        #canvas-ruleta {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
-            cursor: pointer;
-        }
-
-        .centro-corazon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background-color: #ff69b4;
-            border: 8px solid #000;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        .centro-corazon::before {
-            content: '♥';
-            font-size: 65px;
-            color: #000;
-            margin-top: -5px;
-        }
-
-        .pop-up-premio {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .contenido-pop-up {
-            background: #fff;
-            padding: 30px 20px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            border: 4px solid #ff69b4;
-            animation: entradaPop 0.3s ease-out;
-        }
-
-        @keyframes entradaPop {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .contenido-pop-up h2 {
-            color: #ff69b4;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .contenido-pop-up p {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .contenido-pop-up button {
-            background: #000;
-            color: #fff;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .pie-pagina {
-            font-size: 12px;
-            font-weight: 700;
-            color: #666;
-            letter-spacing: 0.5px;
-            line-height: 1.6;
-            text-transform: uppercase;
-        }
-
-        .usuario-telegram {
-            color: #000;
-            font-size: 14px;
-            display: block;
-            margin-top: 2px;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .contenedor-logo-telegram {
-            margin-top: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-telegram {
-            width: 28px;
-            height: 28px;
-        }
-
-        /* PANEL DE CONTROL OCULTO (MODAL) */
-        .panel-admin-contenido {
-            background: #111;
-            color: #fff;
-            border: 3px solid #ff69b4;
-            max-width: 450px;
-            width: 100%;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: left;
-        }
-        .panel-admin-contenido h3 {
-            color: #ff69b4;
-            margin-bottom: 15px;
-            font-size: 20px;
-            text-transform: uppercase;
-        }
-        .panel-admin-contenido textarea {
-            width: 100%;
-            height: 150px;
-            margin: 15px 0;
-            background: #222;
-            color: #00ff00;
-            border: 1px solid #444;
-            font-family: monospace;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .btn-admin {
-            background: #ff69b4;
-            border: none;
-            padding: 10px 15px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            width: 100%;
-            font-size: 14px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-        .btn-cerrar-admin {
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 8px;
-            width: 100%;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background-color: #ededed; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow-x: hidden; position: relative; }
+        .decoracion-top { position: absolute; top: 20px; left: 10%; width: 150px; opacity: 0.7; pointer-events: none; }
+        .decoracion-bottom { position: absolute; bottom: 40px; right: 5%; width: 120px; opacity: 0.7; pointer-events: none; }
+        .contenedor { width: 100%; max-width: 450px; text-align: center; padding: 20px; position: relative; z-index: 10; }
+        .titulo-juga { font-size: 28px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: -5px; color: #222; user-select: none; }
+        .titulo-gana { font-size: 55px; font-weight: 900; text-transform: uppercase; color: #ff69b4; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; margin-bottom: 15px; user-select: none; cursor: pointer; }
+        .subtitulo { font-size: 13px; font-weight: 700; text-transform: uppercase; color: #555; letter-spacing: 1px; margin-bottom: 30px; padding: 0 20px; }
+        .seccion-token { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border: 2px dashed #ff69b4; }
+        .seccion-token input { width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; text-align: center; text-transform: uppercase; }
+        .seccion-token button { padding: 10px 15px; background: #000; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-left: 5px; }
+        .ruleta-wrapper { position: relative; width: 320px; height: 320px; margin: 0 auto 30px auto; }
+        .marcador { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #000; z-index: 100; }
+        #canvas-ruleta { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1); cursor: pointer; }
+        .centro-corazon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background-color: #ff69b4; border: 8px solid #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; pointer-events: none; z-index: 50; }
+        .centro-corazon::before { content: '♥'; font-size: 65px; color: #000; margin-top: -5px; }
+        .pop-up-premio { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; padding: 20px; }
+        .contenido-pop-up { background: #fff; padding: 30px 20px; border-radius: 15px; text-align: center; max-width: 400px; width: 100%; border: 4px solid #ff69b4; animation: entradaPop 0.3s ease-out; }
+        @keyframes entradaPop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .contenido-pop-up h2 { color: #ff69b4; font-size: 28px; margin-bottom: 10px; }
+        .contenido-pop-up p { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .contenido-pop-up button { background: #000; color: #fff; padding: 10px 25px; border: none; border-radius: 25px; font-weight: 700; cursor: pointer; }
+        .pie-pagina { font-size: 12px; font-weight: 700; color: #666; letter-spacing: 0.5px; line-height: 1.6; text-transform: uppercase; }
+        .usuario-telegram { color: #000; font-size: 14px; display: block; margin-top: 2px; font-weight: 900; letter-spacing: 1px; }
+        .contenedor-logo-telegram { margin-top: 8px; display: flex; justify-content: center; align-items: center; }
+        .logo-telegram { width: 28px; height: 28px; }
+        .panel-admin-contenido { background: #111; color: #fff; border: 3px solid #ff69b4; max-width: 450px; width: 100%; padding: 25px; border-radius: 15px; text-align: left; }
+        .panel-admin-contenido h3 { color: #ff69b4; margin-bottom: 15px; font-size: 20px; text-transform: uppercase; }
+        .panel-admin-contenido textarea { width: 100%; height: 150px; margin: 15px 0; background: #222; color: #00ff00; border: 1px solid #444; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 14px; }
+        .btn-admin { background: #ff69b4; border: none; padding: 10px 15px; color: #000; font-weight: bold; cursor: pointer; border-radius: 6px; width: 100%; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
+        .btn-cerrar-admin { background: #333; color: #fff; border: none; padding: 8px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -333,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Emergente Ganador -->
     <div class="pop-up-premio" id="pop-up">
         <div class="contenido-pop-up">
             <h2>¡Felicidades!</h2>
@@ -343,7 +82,6 @@
         </div>
     </div>
 
-    <!-- PANEL DE ADMINISTRADOR VINCULADO A FIREBASE -->
     <div class="pop-up-premio" id="pop-up-admin">
         <div class="panel-admin-contenido">
             <h3>Panel de Control Secreto</h3>
@@ -355,7 +93,6 @@
         </div>
     </div>
 
-    <!-- EL DIBUJO DE LA RULETA SE EJECUTA INMEDIATAMENTE AQUÍ -->
     <script>
         const premios = [
             "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
@@ -398,30 +135,26 @@
         dibujarRuleta();
     </script>
 
-    <!-- LOGICA DE FIREBASE AISLADA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getDatabase, ref, get, remove, set } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
-        import { getFirestore, doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
             authDomain: "ruletapremios-acef9.firebaseapp.com",
+            databaseURL: "https://ruletapremios-acef9-default-rtdb.firebaseio.com",
             projectId: "ruletapremios-acef9",
             storageBucket: "ruletapremios-acef9.firebasestorage.app",
             messagingSenderId: "1023792024330",
-            appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3",
-            measurementId: "G-43HGPV8SZ8"
+            appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3"
         };
 
         const app = initializeApp(firebaseConfig);
         const rtdb = getDatabase(app);
-        const db = getFirestore(app);
 
         const CONTRASEÑA_ADMIN = "1234";
         let puedeGirar = false; 
         let tokenActualValido = "";
-        let tipoBaseDatos = "rtdb"; 
 
         async function validarToken() {
             const input = document.getElementById("input-token").value.trim().toUpperCase();
@@ -430,16 +163,14 @@
             try {
                 const rtdbRef = ref(rtdb, `tokens/${input}`);
                 const snapshot = await get(rtdbRef);
-                if (snapshot.exists()) { tipoBaseDatos = "rtdb"; activarGiro(input); return; }
-
-                const firestoreRef = doc(db, "tokens", input);
-                const docSnap = await getDoc(firestoreRef);
-                if (docSnap.exists()) { tipoBaseDatos = "firestore"; activarGiro(input); return; }
-
-                alert("Código inválido o ya utilizado.");
+                if (snapshot.exists()) { 
+                    activarGiro(input); 
+                } else {
+                    alert("Código inválido o ya utilizado.");
+                }
             } catch (error) {
                 console.error(error);
-                alert("Error de conexión. Revisa las reglas de lectura de tu Firebase.");
+                alert("Error de conexión directa a Realtime Database.");
             }
         }
 
@@ -459,11 +190,10 @@
                     const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
                     nuevosTokens.push(codigoUnico);
                     await set(ref(rtdb, `tokens/${codigoUnico}`), true);
-                    await setDoc(doc(db, "tokens", codigoUnico), { activo: true });
                 }
                 document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
-                alert("¡Creados 100 códigos en Firebase!");
-            } catch (e) { alert("Error al subir. Revisa las reglas de escritura en Firebase."); }
+                alert("¡Creados 100 códigos en Realtime Database!");
+            } catch (e) { alert("Error al guardar en Realtime Database."); }
         }
 
         async function verCuponesRestantes() {
@@ -505,7 +235,6 @@
 
             try {
                 await remove(ref(rtdb, `tokens/${tokenActualValido}`));
-                await deleteDoc(doc(db, "tokens", tokenActualValido));
             } catch (e) {}
 
             setTimeout(() => {
@@ -521,5 +250,5 @@
         document.getElementById("btn-cerrar-popup").addEventListener("click", () => { location.reload(); });
     </script>
 </body>
-    </html>
-                
+                                                                                            </html>
+                                                                                            
