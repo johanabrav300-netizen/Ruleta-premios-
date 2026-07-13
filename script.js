@@ -1,57 +1,48 @@
-    import { db } from "./firebase-config.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // --- CONFIGURACIÓN ESTÉTICA ---
+const URL_IMAGEN_RULETA = 'ruleta.png';
+const URL_IMAGEN_AGUJA = 'aguja.png';
+
+// Lista completa de las 20 porciones que deben coincidir con el diseño de tu imagen circular
+const visualPrizes = [
+  "PREMIO 1", "PREMIO 2", "PREMIO 3", "PREMIO 4", "PREMIO 5",
+  "PREMIO 6", "PREMIO 7", "PREMIO 8", "PREMIO 9", "PREMIO 10",
+  "PREMIO 11", "PREMIO 12", "PREMIO 13", "PREMIO 14", "PREMIO 15",
+  "PREMIO 16", "PREMIO 17", "PREMIO 18", "PREMIO 19", "PREMIO 20"
+];
+// --- FIN DE CONFIGURACIÓN ---
 
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinBtn");
 const result = document.getElementById("result");
 
-// Lista con tu orden específico
-const prizes = [
-    "Premio 1", "Premio 20", "Premio 10", "Premio 15", "Premio 3", 
-    "Premio 18", "Premio 12", "Premio 5", "Premio 2", "Premio 19", 
-    "Premio 4", "Premio 17", "Premio 6", "Premio 13", "Premio 7", 
-    "Premio 16", "Premio 8", "Premio 14", "Premio 9", "Premio 11"
-];
-
-const colors = ["#ff595e", "#ff924c", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"];
-const angle = (2 * Math.PI) / prizes.length;
+const angle = (2 * Math.PI) / visualPrizes.length;
 let isSpinning = false;
 let currentRotation = 0;
 
+const imgRuleta = new Image();
+imgRuleta.src = URL_IMAGEN_RULETA;
+
+const imgAguja = new Image();
+imgAguja.src = URL_IMAGEN_AGUJA;
+
 function drawWheel() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(currentRotation);
-
-    const radius = canvas.width / 2;
-
-    prizes.forEach((prize, index) => {
-        const start = index * angle;
-        const end = start + angle;
-
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, start, end);
-        ctx.closePath();
-        ctx.fillStyle = colors[index % colors.length];
-        ctx.fill();
-
-        ctx.save();
-        ctx.rotate(start + angle / 2);
-        ctx.fillStyle = "black"; // Texto en negro para que resalte
-        ctx.font = "bold 14px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(prize, radius / 2, 5); 
-        ctx.restore();
-    });
+    ctx.drawImage(imgRuleta, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
     ctx.restore();
+    
+    const wAguja = canvas.width * 0.15;
+    const hAguja = canvas.width * 0.25;
+    ctx.drawImage(imgAguja, (canvas.width / 2) - (wAguja / 2), -canvas.height * 0.05, wAguja, hAguja);
 }
 
 function iniciarGiro() {
-    result.innerText = "¡Mucha suerte...!";
-    const vInicial = Math.random() * 0.4 + 0.3;
+    result.innerText = "✨ ¡Mucha suerte...!";
+    const vInicial = Math.random() * 0.4 + 0.3; 
     let velocidad = vInicial;
     const desaceleracion = 0.985;
 
@@ -59,6 +50,7 @@ function iniciarGiro() {
         currentRotation += velocidad;
         velocidad *= desaceleracion;
         drawWheel();
+
         if (velocidad > 0.001) {
             requestAnimationFrame(animar);
         } else {
@@ -75,19 +67,14 @@ async function calcularPremio() {
     const anguloPremio = (anguloMarcador + ratacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    // Guardamos el premio visual de la ruleta física
-    let premioVisual = prizes[index];
-
-    // Cambiamos el texto en pantalla por un mensaje temporal de carga
     result.innerText = "🔄 Validando tu premio de forma segura...";
 
     try {
-        // Consultamos a tu backend en Vercel
         const respuesta = await fetch('https://ruleta-backend-eight.vercel.app/api/sorteo');
         const datos = await respuesta.json();
 
-        // Mostramos el resultado real que envió el servidor seguro
-        result.innerText = `🎉 ¡Ganaste: ${datos.nombreRuleta}! \n Tu código es: ${datos.codigoSecreto}`;
+        // Muestra el nombre del premio, el detalle descriptivo y su identificador/código
+        result.innerText = `🎉 ¡Ganaste: ${datos.nombreRuleta}!\n🎁 ${datos.detallePremio}\n🔑 Token: ${datos.codigoSecreto}`;
 
     } catch (error) {
         console.error("Error al obtener el premio seguro:", error);
@@ -95,24 +82,12 @@ async function calcularPremio() {
     }
 }
 
-
-spinBtn.addEventListener("click", async () => {
+spinBtn.addEventListener("click", () => {
     if (isSpinning) return;
-    const inputCodigo = document.getElementById("codigo").value.trim().toUpperCase();
-    if (!inputCodigo) { alert("Ingrese un código."); return; }
-    
-    try {
-        const docRef = doc(db, "Tokens", inputCodigo);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().usado === false) {
-            await updateDoc(docRef, { usado: true, fechaUso: new Date() });
-            isSpinning = true;
-            iniciarGiro();
-        } else {
-            alert("Código inválido o ya utilizado.");
-        }
-    } catch (e) { alert("Error de conexión."); }
+    isSpinning = true;
+    iniciarGiro();
 });
 
-drawWheel();
-    
+imgRuleta.onload = () => {
+    drawWheel();
+};
