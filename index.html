@@ -3,88 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jugá y Ganá</title>
+    <title>Jugá y Ganá - Ruleta de Premios</title>
+    <!-- Google Fonts para lograr la tipografía del diseño -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap');
-
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #ededed;
             font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #ededed;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
             min-height: 100vh;
-            box-sizing: border-box;
             color: #333;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* Ondas decorativas superiores e inferiores simuladas */
-        .decoracion-superior {
+        /* Detalles estéticos (Garabatos del diseño original) */
+        .decoracion-top {
             position: absolute;
             top: 20px;
-            width: 80%;
-            max-width: 300px;
-            opacity: 0.8;
+            left: 10%;
+            width: 150px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .decoracion-bottom {
+            position: absolute;
+            bottom: 40px;
+            right: 5%;
+            width: 120px;
+            opacity: 0.7;
+            pointer-events: none;
         }
 
-        .contenedor-principal {
-            text-align: center;
-            margin-top: 80px;
-            z-index: 2;
+        .contenedor {
             width: 100%;
             max-width: 450px;
-            padding: 0 20px;
-            box-sizing: border-box;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
         }
 
-        .subtitulo-juga {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            font-style: italic;
+        .titulo-juga {
+            font-size: 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: -5px;
             color: #222;
-            margin: 0;
-            line-height: 1;
+            user-select: none;
         }
 
         .titulo-gana {
-            font-size: 64px;
+            font-size: 55px;
             font-weight: 900;
-            color: #ff69b4; /* Rosa idéntico */
+            text-transform: uppercase;
+            color: #ff69b4; /* Rosa Canva */
             text-shadow: 2px 2px 0px #000;
-            margin: -5px 0 20px 0;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .bajada-texto {
-            font-size: 14px;
-            font-weight: 700;
-            color: #444;
             letter-spacing: 1px;
+            margin-bottom: 15px;
+            user-select: none;
+            cursor: pointer; /* Un pequeño truco para ti */
+        }
+
+        .subtitulo {
+            font-size: 13px;
+            font-weight: 700;
             text-transform: uppercase;
+            color: #555;
+            letter-spacing: 1px;
             margin-bottom: 30px;
-            line-height: 1.4;
+            padding: 0 20px;
         }
 
-        .ruleta-box {
+        /* Contenedor de la Ruleta */
+        .ruleta-wrapper {
             position: relative;
-            display: inline-block;
-            margin: 10px auto;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 30px auto;
         }
 
-        canvas {
-            display: block;
-            max-width: 100%;
-            width: 340px;
-            height: 340px;
-        }
-
-        /* Aguja marcador negra centralizada arriba */
+        /* Indicador / Flecha de selección */
         .marcador {
             position: absolute;
             top: -15px;
@@ -95,72 +103,423 @@
             border-left: 15px solid transparent;
             border-right: 15px solid transparent;
             border-top: 25px solid #000;
-            z-index: 10;
+            z-index: 100;
         }
 
-        .btn-girar {
+        /* Canvas de la Ruleta */
+        #canvas-ruleta {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+
+        /* Centro de Corazón exacto al diseño */
+        .centro-corazon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
             background-color: #ff69b4;
-            color: white;
-            border: 2px solid #000;
-            padding: 12px 45px;
+            border: 8px solid #000;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .centro-corazon::before {
+            content: '♥';
+            font-size: 65px;
+            color: #000;
+            margin-top: -5px;
+        }
+
+        /* Sección de Cupones / Tokens */
+        .seccion-token {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border: 2px dashed #ff69b4;
+        }
+
+        .seccion-token input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .seccion-token button {
+            padding: 10px 15px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        /* Modal / Alerta de Premio y Panel Admin */
+        .pop-up-premio {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .contenido-pop-up {
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 4px solid #ff69b4;
+            animation: entradaPop 0.3s ease-out;
+        }
+
+        @keyframes entradaPop {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .contenido-pop-up h2 {
+            color: #ff69b4;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .contenido-pop-up p {
             font-size: 18px;
             font-weight: 700;
-            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .contenido-pop-up button {
+            background: #000;
+            color: #fff;
+            padding: 10px 25px;
+            border: none;
             border-radius: 25px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 25px;
-            box-shadow: 0px 4px 0px #000;
-            transition: transform 0.1s;
         }
 
-        .btn-girar:active {
-            transform: translateY(4px);
-            box-shadow: 0px 0px 0px #000;
-        }
-
-        #result {
-            margin-top: 20px;
+        .pie-pagina {
+            font-size: 12px;
             font-weight: 700;
-            font-size: 16px;
-            min-height: 45px;
-            padding: 0 10px;
+            color: #666;
+            letter-spacing: 0.5px;
+            line-height: 1.5;
         }
 
-        .footer-texto {
-            font-size: 13px;
-            font-weight: 700;
-            color: #555;
-            margin-bottom: 40px;
-            letter-spacing: 1px;
-            z-index: 2;
+        /* DISEÑO PANEL DE CONTROL OCULTO (MODAL) */
+        .panel-admin-contenido {
+            background: #111;
+            color: #fff;
+            border: 3px solid #ff69b4;
+            max-width: 450px;
+            width: 100%;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: left;
+        }
+        .panel-admin-contenido h3 {
+            color: #ff69b4;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+        .panel-admin-contenido textarea {
+            width: 100%;
+            height: 150px;
+            margin: 15px 0;
+            background: #222;
+            color: #00ff00; /* Estilo Matrix para ver tus códigos */
+            border: 1px solid #444;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .btn-admin {
+            background: #ff69b4;
+            border: none;
+            padding: 10px 15px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .btn-cerrar-admin {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- Línea decorativa simulada arriba -->
-    <svg class="decoracion-superior" viewBox="0 0 100 20" fill="none" stroke="black" stroke-width="1">
-        <path d="M10,15 Q25,5 40,15 T70,15 T90,5" />
-    </svg>
+    <!-- Garabatos vectorizados recreados en SVG -->
+    <svg class="decoracion-top" viewBox="0 0 100 40"><path d="M10,30 Q25,10 40,30 T70,30 T100,10" fill="none" stroke="black" stroke-width="2"/></svg>
+    <svg class="decoracion-bottom" viewBox="0 0 100 40"><path d="M0,20 Q25,40 50,20 T100,20" fill="none" stroke="black" stroke-width="2"/></svg>
 
-    <div class="contenedor-principal">
-        <h2 class="subtitulo-juga">Jugá y</h2>
-        <h1 class="titulo-gana">Ganá</h1>
-        <div class="bajada-texto">SORTEO EXCLUSIVO DE PREMIOS</div>
+    <div class="contenedor">
+        <h2 class="titulo-juga">Jugá y</h2>
+        <!-- Mantén presionado este título "GANÁ" en el celular por 3 segundos para abrir el panel secreto -->
+        <h1 class="titulo-gana" id="boton-secreto-titulo">Ganá</h1>
+        <p class="subtitulo">Girá la ruleta para descubrir tu premio sorpresa</p>
 
-        <div class="ruleta-box">
-            <div class="marcador"></div>
-            <canvas id="wheel" width="600" height="600"></canvas>
+        <!-- Bloque de validación de cupones -->
+        <div class="seccion-token" id="bloque-codigo">
+            <p style="font-size: 12px; font-weight:700; margin-bottom: 8px; text-transform:uppercase;">Ingresa tu código de un solo uso:</p>
+            <input type="text" id="input-token" placeholder="CODIGO-XXXX">
+            <button onclick="validarToken()">Validar</button>
         </div>
 
-        <button class="btn-girar" id="spinBtn">GIRAR</button>
-        <div id="result"></div>
+        <!-- Ruleta -->
+        <div class="ruleta-wrapper">
+            <div class="marcador"></div>
+            <div class="centro-corazon"></div>
+            <canvas id="canvas-ruleta" width="500" height="500"></canvas>
+        </div>
+
+        <p class="pie-pagina">
+            Mandanos la captura a:<br>
+            <strong>@SITIOINCREIBLE</strong>
+        </p>
     </div>
 
-    <div class="footer-texto">
-        Mandanos la captura a tu contacto
+    <!-- Emergente de Ganador -->
+    <div class="pop-up-premio" id="pop-up">
+        <div class="contenido-pop-up">
+            <h2>¡Felicidades!</h2>
+            <p>Ganaste: <br><span id="texto-premio" style="color:#000; font-size:22px;"></span></p>
+            <p style="font-size: 12px; color: #777;">Recordá sacar una captura de pantalla completa ahora mismo.</p>
+            <button onclick="cerrarPopup()">Genial</button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- PANEL DE ADMINISTRADOR OCULTO (MODAL INVISIBLE) -->
+    <div class="pop-up-premio" id="pop-up-admin">
+        <div class="panel-admin-contenido">
+            <h3>Panel de Control Secreto</h3>
+            <p style="font-size:12px; color:#bbb;">Desde aquí controlas los cupones guardados de forma segura.</p>
+            
+            <textarea id="lista-tokens-generados" readonly placeholder="Los códigos nuevos aparecerán aquí... Copialos y guardalos bien."></textarea>
+            
+            <button class="btn-admin" onclick="generarNuevosTokens()">Generar 100 códigos nuevos</button>
+            <button class="btn-admin" style="background:#555; color:#fff;" onclick="verCuponesRestantes()">Ver cuántos cupones quedan activos</button>
+            <button class="btn-cerrar-admin" onclick="cerrarAdmin()">Cerrar Panel</button>
+        </div>
+    </div>
+
+    <script>
+        // CONTRASEÑA MAESTRA: Cambia "1234" por la palabra o número que tú quieras.
+        const CONTRASEÑA_ADMIN = "1234";
+
+        const premios = [
+            "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
+            "VIDEOLLAMADA 2MIN (denoche)", "VIDEOLLAMADA 5MIN (denoche)", "DICKRATE CON FOTITO DE REGALO",  
+            "1 DIA EN EL VIP", "3 DIAS EN EL VIP", "7 DIAS EN EL VIP", "15 DIAS EN EL VIP", 
+            "UN MES EN EL VIP", "1 FOTO Y 1 VIDEO", "5 FOTOS Y 3 VIDEOS", "10 FOTOS Y 6 VIDEOS", 
+            "VALE OTRA TIRADA", "ENCUENTRO 30MIN", "ENCUENTRO 1 HORA", "ENCUENTRO TRIO CON MI PAREJA", 
+            "3 FOTOS ZINGS", "5 FOTOS Y 2 VIDEOS ZINGS"
+        ];
+
+        const totalPremios = premios.length;
+        const canvas = document.getElementById("canvas-ruleta");
+        const ctx = canvas.getContext("2d");
+        let puedeGirar = false; 
+        let tokenActualValido = "";
+
+        function dibujarRuleta() {
+            const anguloSector = (2 * Math.PI) / totalPremios;
+            for (let i = 0; i < totalPremios; i++) {
+                const anguloInicio = i * anguloSector;
+                const anguloFin = anguloInicio + anguloSector;
+                ctx.beginPath();
+                ctx.moveTo(250, 250);
+                ctx.arc(250, 250, 240, anguloInicio, anguloFin);
+                ctx.fillStyle = (i % 2 === 0) ? "#000000" : "#ff69b4";
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "#000000";
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(250, 250);
+                ctx.rotate(anguloInicio + anguloSector / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = (i % 2 === 0) ? "#ff69b4" : "#000000";
+                ctx.font = "bold 10px Montserrat";
+                let textoMostrar = premios[i];
+                if(textoMostrar.length > 18) textoMostrar = textoMostrar.substring(0,16) + "..";
+                ctx.fillText(textoMostrar, 230, 5);
+                ctx.restore();
+            }
+        }
+
+        function obtenerTokensDeAlmacenamiento() {
+            const tokens = localStorage.getItem("tokens_ruleta");
+            return tokens ? JSON.parse(tokens) : [];
+        }
+
+        function guardarTokensEnAlmacenamiento(lista) {
+            localStorage.setItem("tokens_ruleta", JSON.stringify(lista));
+        }
+
+        function validarToken() {
+            const input = document.getElementById("input-token").value.trim().toUpperCase();
+            let listaTokens = obtenerTokensDeAlmacenamiento();
+
+            if (listaTokens.includes(input)) {
+                tokenActualValido = input;
+                puedeGirar = true;
+                alert("¡Código válido! Ya podés girar la ruleta haciendo click sobre ella.");
+                document.getElementById("bloque-codigo").style.opacity = "0.5";
+                document.getElementById("input-token").disabled = true;
+            } else {
+                alert("Código inválido o ya utilizado. Por favor verifica.");
+            }
+        }
+
+        // ACCIONES DEL PANEL DE ADMINISTRACIÓN SEGURO
+        function abrirAdminConPassword() {
+            const intento = prompt("Introduce la contraseña de Administrador:");
+            if (intento === CONTRASEÑA_ADMIN) {
+                document.getElementById("pop-up-admin").style.display = "flex";
+                document.getElementById("lista-tokens-generados").value = "";
+            } else if (intento !== null) {
+                alert("Contraseña incorrecta. Acceso denegado.");
+            }
+        }
+
+        function generarNuevosTokens() {
+            let nuevosTokens = [];
+            for (let i = 0; i < 100; i++) {
+                // Genera códigos aleatorios difíciles de adivinar tipo: TOK-8F2K9X
+                const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+                nuevosTokens.push(codigoUnico);
+            }
+            let listaExistente = obtenerTokensDeAlmacenamiento();
+            guardarTokensEnAlmacenamiento(listaExistente.concat(nuevosTokens));
+            
+            document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
+            alert("¡Éxito! Se inyectaron 100 nuevos códigos. Cópialos del recuadro verde antes de cerrar.");
+        }
+
+        function verCuponesRestantes() {
+            let listaExistente = obtenerTokensDeAlmacenamiento();
+            alert(`Actualmente hay ${listaExistente.length} cupones válidos listos en el sistema.`);
+            if(listaExistente.length > 0) {
+                document.getElementById("lista-tokens-generados").value = "CUPONES ACTIVOS EN EL SISTEMA:\n\n" + listaExistente.join("\n");
+            }
+        }
+
+        function cerrarAdmin() {
+            document.getElementById("pop-up-admin").style.display = "none";
+        }
+
+        // LÓGICA DE DETECCIÓN SECRETA (Cómo entrar al panel)
+        // Opción 1: En PC presionando la combinación de letras 'A' + 'S' + 'D' al mismo tiempo
+        let teclasPresionadas = {};
+        window.addEventListener('keydown', (e) => {
+            teclasPresionadas[e.key.toLowerCase()] = true;
+            if (teclasPresionadas['a'] && teclasPresionadas['s'] && teclasPresionadas['d']) {
+                abrirAdminConPassword();
+                teclasPresionadas = {};
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            teclasPresionadas[e.key.toLowerCase()] = false;
+        });
+
+        // Opción 2: En móviles (Mantener presionado el título "GANÁ" durante 2.5 segundos)
+        const tituloBoton = document.getElementById("boton-secreto-titulo");
+        let tiempoPresionado;
+        tituloBoton.addEventListener("touchstart", () => {
+            tiempoPresionado = setTimeout(abrirAdminConPassword, 2500);
+        });
+        tituloBoton.addEventListener("touchend", () => {
+            clearTimeout(tiempoPresionado);
+        });
+        // También por si estás haciendo pruebas con clic largo de mouse
+        tituloBoton.addEventListener("mousedown", () => {
+            tiempoPresionado = setTimeout(abrirAdminConPassword, 2500);
+        });
+        tituloBoton.addEventListener("mouseup", () => {
+            clearTimeout(tiempoPresionado);
+        });
+
+
+        // GIRO DE LA RULETA
+        canvas.addEventListener("click", () => {
+            if (!puedeGirar) {
+                alert("Por favor, primero ingresá y valida un código de un solo uso.");
+                return;
+            }
+            puedeGirar = false;
+
+            // Filtro estricto: Bloquea premios 16, 17 y 18 (índices 15, 16 y 17)
+            let indicesPermitidos = [];
+            for (let i = 0; i < totalPremios; i++) {
+                if (i !== 15 && i !== 16 && i !== 17) {
+                    indicesPermitidos.push(i);
+                }
+            }
+
+            const indiceGanadorAleatorio = indicesPermitidos[Math.floor(Math.random() * indicesPermitidos.length)];
+            const anguloSectorGrados = 360 / totalPremios;
+            const gradosHaciaMarcador = 270;
+            const posicionCentroSector = (indiceGanadorAleatorio * anguloSectorGrados) + (anguloSectorGrados / 2);
+            const gradosRotacionFinal = 1800 + (gradosHaciaMarcador - posicionCentroSector);
+
+            canvas.style.transform = `rotate(${gradosRotacionFinal}deg)`;
+
+            // Consumir el cupón inmediatamente de la memoria local
+            let listaTokens = obtenerTokensDeAlmacenamiento();
+            listaTokens = listaTokens.filter(t => t !== tokenActualValido);
+            guardarTokensEnAlmacenamiento(listaTokens);
+
+            setTimeout(() => {
+                document.getElementById("texto-premio").innerText = premios[indiceGanadorAleatorio];
+                document.getElementById("pop-up").style.display = "flex";
+            }, 4000);
+        });
+
+        function cerrarPopup() {
+            document.getElementById("pop-up").style.display = "none";
+            location.reload();
+        }
+
+        dibujarRuleta();
+    </script>
 </body>
 </html>
