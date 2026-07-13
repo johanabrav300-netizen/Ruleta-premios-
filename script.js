@@ -63,7 +63,7 @@ function iniciarGiro() {
             requestAnimationFrame(animar);
         } else {
             isSpinning = false;
-            calcularPremio();
+            await calcularPremio();
         }
     }
     animar();
