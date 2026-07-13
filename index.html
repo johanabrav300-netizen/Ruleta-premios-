@@ -70,6 +70,7 @@
             letter-spacing: 1px;
             margin-bottom: 15px;
             user-select: none;
+            cursor: pointer;
         }
 
         .subtitulo {
@@ -243,6 +244,59 @@
             width: 28px;
             height: 28px;
         }
+
+        /* DISEÑO PANEL DE CONTROL OCULTO (MODAL) */
+        .panel-admin-contenido {
+            background: #111;
+            color: #fff;
+            border: 3px solid #ff69b4;
+            max-width: 450px;
+            width: 100%;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: left;
+        }
+        .panel-admin-contenido h3 {
+            color: #ff69b4;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+        .panel-admin-contenido textarea {
+            width: 100%;
+            height: 150px;
+            margin: 15px 0;
+            background: #222;
+            color: #00ff00;
+            border: 1px solid #444;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .btn-admin {
+            background: #ff69b4;
+            border: none;
+            padding: 10px 15px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .btn-cerrar-admin {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -274,11 +328,12 @@
         <div class="contenedor-logo-telegram">
             <svg class="logo-telegram" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="12" fill="#0088CC"/>
-                <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10L10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
+                <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10 optionsL10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
             </svg>
         </div>
     </div>
 
+    <!-- Emergente Ganador -->
     <div class="pop-up-premio" id="pop-up">
         <div class="contenido-pop-up">
             <h2>¡Felicidades!</h2>
@@ -288,13 +343,27 @@
         </div>
     </div>
 
+    <!-- PANEL DE ADMINISTRADOR VINCULADO A FIREBASE -->
+    <div class="pop-up-premio" id="pop-up-admin">
+        <div class="panel-admin-contenido">
+            <h3>Panel de Control Secreto</h3>
+            <p style="font-size:12px; color:#bbb;">Los códigos generados aquí se subirán directamente a tu Firebase de forma automática.</p>
+            
+            <textarea id="lista-tokens-generados" readonly placeholder="Los códigos nuevos aparecerán aquí..."></textarea>
+            
+            <button class="btn-admin" id="btn-generar-100">Generar 100 códigos nuevos en Firebase</button>
+            <button class="btn-admin" style="background:#555; color:#fff;" id="btn-ver-restantes">Ver cuántos cupones quedan activos</button>
+            <button class="btn-cerrar-admin" id="btn-cerrar-admin">Cerrar Panel</button>
+        </div>
+    </div>
+
     <!-- CARGA DE SDKs DE FIREBASE V10 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-        import { getDatabase, ref, get, remove, child } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
-        import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getDatabase, ref, get, remove, set } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        import { getFirestore, doc, getDoc, deleteDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-        // Tus credenciales oficiales vinculadas
+        // CONFIGURACIÓN DE TU PROYECTO
         const firebaseConfig = {
             apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
             authDomain: "ruletapremios-acef9.firebaseapp.com",
@@ -309,7 +378,8 @@
         const rtdb = getDatabase(app);
         const db = getFirestore(app);
 
-        // Lógica de Premios
+        const CONTRASEÑA_ADMIN = "1234";
+
         const premios = [
             "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
             "VIDEOLLAMADA 2MIN (denoche)", "VIDEOLLAMADA 5MIN (denoche)", "DICKRATE CON FOTITO DE REGALO",  
@@ -324,7 +394,7 @@
         const ctx = canvas.getContext("2d");
         let puedeGirar = false; 
         let tokenActualValido = "";
-        let tipoBaseDatos = "rtdb"; // Por defecto intenta leer Realtime Database
+        let tipoBaseDatos = "rtdb"; 
 
         function dibujarRuleta() {
             const anguloSector = (2 * Math.PI) / totalPremios;
@@ -353,7 +423,7 @@
             }
         }
 
-        // Validación inteligente en Firebase (Busca tanto en Firestore como en Realtime Database)
+        // Validación en Firebase
         async function validarToken() {
             const input = document.getElementById("input-token").value.trim().toUpperCase();
             if (!input) {
@@ -362,7 +432,6 @@
             }
 
             try {
-                // 1. Intento buscar en Realtime Database (Ruta: tokens/CODIGO)
                 const rtdbRef = ref(rtdb, `tokens/${input}`);
                 const snapshot = await get(rtdbRef);
                 
@@ -372,7 +441,6 @@
                     return;
                 }
 
-                // 2. Si no lo encuentra, intenta buscar en Cloud Firestore (Colección: tokens, Documento: CODIGO)
                 const firestoreRef = doc(db, "tokens", input);
                 const docSnap = await getDoc(firestoreRef);
 
@@ -385,20 +453,76 @@
                 alert("Código inválido, expirado o ya utilizado.");
 
             } catch (error) {
-                console.error("Error al conectar con Firebase: ", error);
-                alert("Hubo un error de conexión con la base de datos.");
+                console.error("Error Firebase: ", error);
+                alert("Error de conexión con la base de datos.");
             }
         }
 
         function activarGiro(codigo) {
             tokenActualValido = codigo;
             puedeGirar = true;
-            alert("¡Código verificado en Firebase correctamente! Haz click en la ruleta para girar.");
+            alert("¡Código válido detectado en Firebase! Ya podés girar la ruleta haciendo click sobre ella.");
             document.getElementById("bloque-codigo").style.opacity = "0.5";
             document.getElementById("input-token").disabled = true;
         }
 
-        // Al hacer click en la ruleta
+        // FUNCIONES DEL PANEL SECRETO AUTOMÁTICAS CON FIREBASE
+        async function generarNuevosTokens() {
+            let nuevosTokens = [];
+            document.getElementById("lista-tokens-generados").value = "Subiendo códigos a Firebase, por favor espera...";
+            
+            try {
+                for (let i = 0; i < 100; i++) {
+                    const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+                    nuevosTokens.push(codigoUnico);
+                    
+                    // Sube a Realtime Database y Firestore para asegurar compatibilidad total con tu generador azul
+                    await set(ref(rtdb, `tokens/${codigoUnico}`), true);
+                    await setDoc(doc(db, "tokens", codigoUnico), { activo: true });
+                }
+                
+                document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
+                alert("¡Éxito total! Se crearon 100 nuevos códigos y ya están guardados de forma segura en tu Firebase.");
+            } catch (e) {
+                console.error(e);
+                alert("Error al subir los códigos a Firebase. Verifica tus reglas de seguridad.");
+            }
+        }
+
+        async function verCuponesRestantes() {
+            try {
+                // Cuenta en RTDB
+                const snapshot = await get(ref(rtdb, "tokens"));
+                let totalRTDB = 0;
+                if (snapshot.exists()) {
+                    totalRTDB = Object.keys(snapshot.val()).length;
+                }
+                alert(`Actualmente quedan exactamente ${totalRTDB} cupones válidos listos en Firebase.`);
+            } catch (e) {
+                alert("No se pudo obtener el conteo en tiempo real.");
+            }
+        }
+
+        // Abrir menú con contraseña
+        function abrirAdminConPassword() {
+            const intento = prompt("Introduce la contraseña de Administrador:");
+            if (intento === CONTRASEÑA_ADMIN) {
+                document.getElementById("pop-up-admin").style.display = "flex";
+                document.getElementById("lista-tokens-generados").value = "";
+            } else if (intento !== null) {
+                alert("Contraseña incorrecta. Acceso denegado.");
+            }
+        }
+
+        // Eventos ocultos para abrir administrador
+        const tituloBoton = document.getElementById("boton-secreto-titulo");
+        let tiempoPresionado;
+        tituloBoton.addEventListener("touchstart", () => { tiempoPresionado = setTimeout(abrirAdminConPassword, 2500); });
+        tituloBoton.addEventListener("touchend", () => { clearTimeout(tiempoPresionado); });
+        tituloBoton.addEventListener("mousedown", () => { tiempoPresionado = setTimeout(abrirAdminConPassword, 2500); });
+        tituloBoton.addEventListener("mouseup", () => { clearTimeout(tiempoPresionado); });
+
+        // Giro de ruleta y eliminación
         canvas.addEventListener("click", async () => {
             if (!puedeGirar) {
                 alert("Por favor, primero ingresá y valida un código.");
@@ -406,7 +530,6 @@
             }
             puedeGirar = false;
 
-            // Bloquear premios pesados
             let indicesPermitidos = [];
             for (let i = 0; i < totalPremios; i++) {
                 if (i !== 15 && i !== 16 && i !== 17) {
@@ -422,31 +545,13 @@
 
             canvas.style.transform = `rotate(${gradosRotacionFinal}deg)`;
 
-            // ELIMINAR EL TOKEN EN TIEMPO REAL DE FIREBASE MIENTRAS GIRA
+            // Elimina el token usado en tiempo real de Firebase
             try {
-                if (tipoBaseDatos === "rtdb") {
-                    await remove(ref(rtdb, `tokens/${tokenActualValido}`));
-                } else {
-                    await deleteDoc(doc(db, "tokens", tokenActualValido));
-                }
+                await remove(ref(rtdb, `tokens/${tokenActualValido}`));
+                await deleteDoc(doc(db, "tokens", tokenActualValido));
             } catch (e) {
-                console.warn("No se pudo eliminar el token, pero el juego continuará.", e);
+                console.warn("No se pudo eliminar de la base de datos.", e);
             }
 
             setTimeout(() => {
-                document.getElementById("texto-premio").innerText = premios[indiceGanadorAleatorio];
-                document.getElementById("pop-up").style.display = "flex";
-            }, 4000);
-        });
-
-        document.getElementById("btn-validar").addEventListener("click", validarToken);
-        document.getElementById("btn-cerrar-popup").addEventListener("click", () => {
-            document.getElementById("pop-up").style.display = "none";
-            location.reload();
-        });
-
-        dibujarRuleta();
-    </script>
-</body>
-        </html>
-            
+                do
