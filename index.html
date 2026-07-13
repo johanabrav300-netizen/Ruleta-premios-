@@ -245,7 +245,7 @@
             height: 28px;
         }
 
-        /* DISEÑO PANEL DE CONTROL OCULTO (MODAL) */
+        /* PANEL DE CONTROL OCULTO (MODAL) */
         .panel-admin-contenido {
             background: #111;
             color: #fff;
@@ -328,7 +328,7 @@
         <div class="contenedor-logo-telegram">
             <svg class="logo-telegram" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="12" fill="#0088CC"/>
-                <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10 optionsL10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
+                <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10L10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
             </svg>
         </div>
     </div>
@@ -361,7 +361,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getDatabase, ref, get, remove, set } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
-        import { getFirestore, doc, getDoc, deleteDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
         // CONFIGURACIÓN DE TU PROYECTO
         const firebaseConfig = {
@@ -466,7 +466,7 @@
             document.getElementById("input-token").disabled = true;
         }
 
-        // FUNCIONES DEL PANEL SECRETO AUTOMÁTICAS CON FIREBASE
+        // PANEL SECRETO CON FIREBASE
         async function generarNuevosTokens() {
             let nuevosTokens = [];
             document.getElementById("lista-tokens-generados").value = "Subiendo códigos a Firebase, por favor espera...";
@@ -476,22 +476,21 @@
                     const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
                     nuevosTokens.push(codigoUnico);
                     
-                    // Sube a Realtime Database y Firestore para asegurar compatibilidad total con tu generador azul
+                    // Sube a Realtime Database y Firestore para asegurar compatibilidad total
                     await set(ref(rtdb, `tokens/${codigoUnico}`), true);
                     await setDoc(doc(db, "tokens", codigoUnico), { activo: true });
                 }
                 
                 document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
-                alert("¡Éxito total! Se crearon 100 nuevos códigos y ya están guardados de forma segura en tu Firebase.");
+                alert("¡Éxito total! Se crearon 100 nuevos códigos en tu Firebase.");
             } catch (e) {
                 console.error(e);
-                alert("Error al subir los códigos a Firebase. Verifica tus reglas de seguridad.");
+                alert("Error al subir los códigos a Firebase.");
             }
         }
 
         async function verCuponesRestantes() {
             try {
-                // Cuenta en RTDB
                 const snapshot = await get(ref(rtdb, "tokens"));
                 let totalRTDB = 0;
                 if (snapshot.exists()) {
@@ -554,4 +553,7 @@
             }
 
             setTimeout(() => {
-                do
+                document.getElementById("texto-premio").innerText = premios[indiceGanadorAleatorio];
+                document.getElementById("pop-up").style.display = "flex";
+            }, 4000);
+        })
