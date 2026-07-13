@@ -71,7 +71,7 @@
             letter-spacing: 1px;
             margin-bottom: 15px;
             user-select: none;
-            cursor: pointer; /* Un pequeño truco para ti */
+            cursor: pointer;
         }
 
         .subtitulo {
@@ -222,12 +222,35 @@
             cursor: pointer;
         }
 
+        /* PIE DE PÁGINA CORREGIDO */
         .pie-pagina {
             font-size: 12px;
             font-weight: 700;
             color: #666;
             letter-spacing: 0.5px;
-            line-height: 1.5;
+            line-height: 1.6;
+            text-transform: uppercase;
+        }
+
+        .usuario-telegram {
+            color: #000;
+            font-size: 14px;
+            display: block;
+            margin-top: 2px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .contenedor-logo-telegram {
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-telegram {
+            width: 28px;
+            height: 28px;
         }
 
         /* DISEÑO PANEL DE CONTROL OCULTO (MODAL) */
@@ -252,7 +275,7 @@
             height: 150px;
             margin: 15px 0;
             background: #222;
-            color: #00ff00; /* Estilo Matrix para ver tus códigos */
+            color: #00ff00;
             border: 1px solid #444;
             font-family: monospace;
             padding: 10px;
@@ -292,7 +315,6 @@
 
     <div class="contenedor">
         <h2 class="titulo-juga">Jugá y</h2>
-        <!-- Mantén presionado este título "GANÁ" en el celular por 3 segundos para abrir el panel secreto -->
         <h1 class="titulo-gana" id="boton-secreto-titulo">Ganá</h1>
         <p class="subtitulo">Girá la ruleta para descubrir tu premio sorpresa</p>
 
@@ -310,10 +332,18 @@
             <canvas id="canvas-ruleta" width="500" height="500"></canvas>
         </div>
 
+        <!-- PIE DE PÁGINA ACTUALIZADO -->
         <p class="pie-pagina">
-            Mandanos la captura a:<br>
-            <strong>@SITIOINCREIBLE</strong>
+            Enviame la Captura del Premio a<br>
+            <span class="usuario-telegram">@Pinklady_04</span>
         </p>
+        <div class="contenedor-logo-telegram">
+            <!-- Icono SVG Oficial de Telegram -->
+            <svg class="logo-telegram" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="#0088CC"/>
+                <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10L10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
+            </svg>
+        </div>
     </div>
 
     <!-- Emergente de Ganador -->
@@ -342,7 +372,7 @@
 
     <script>
         // CONTRASEÑA MAESTRA: Cambia "1234" por la palabra o número que tú quieras.
-        const CONTRASEÑA_ADMIN = "1234";
+        const CONTRASEÑA_ADMIN = "4251";
 
         const premios = [
             "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
@@ -410,7 +440,6 @@
             }
         }
 
-        // ACCIONES DEL PANEL DE ADMINISTRACIÓN SEGURO
         function abrirAdminConPassword() {
             const intento = prompt("Introduce la contraseña de Administrador:");
             if (intento === CONTRASEÑA_ADMIN) {
@@ -424,7 +453,6 @@
         function generarNuevosTokens() {
             let nuevosTokens = [];
             for (let i = 0; i < 100; i++) {
-                // Genera códigos aleatorios difíciles de adivinar tipo: TOK-8F2K9X
                 const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
                 nuevosTokens.push(codigoUnico);
             }
@@ -447,8 +475,6 @@
             document.getElementById("pop-up-admin").style.display = "none";
         }
 
-        // LÓGICA DE DETECCIÓN SECRETA (Cómo entrar al panel)
-        // Opción 1: En PC presionando la combinación de letras 'A' + 'S' + 'D' al mismo tiempo
         let teclasPresionadas = {};
         window.addEventListener('keydown', (e) => {
             teclasPresionadas[e.key.toLowerCase()] = true;
@@ -461,7 +487,6 @@
             teclasPresionadas[e.key.toLowerCase()] = false;
         });
 
-        // Opción 2: En móviles (Mantener presionado el título "GANÁ" durante 2.5 segundos)
         const tituloBoton = document.getElementById("boton-secreto-titulo");
         let tiempoPresionado;
         tituloBoton.addEventListener("touchstart", () => {
@@ -470,7 +495,6 @@
         tituloBoton.addEventListener("touchend", () => {
             clearTimeout(tiempoPresionado);
         });
-        // También por si estás haciendo pruebas con clic largo de mouse
         tituloBoton.addEventListener("mousedown", () => {
             tiempoPresionado = setTimeout(abrirAdminConPassword, 2500);
         });
@@ -478,8 +502,6 @@
             clearTimeout(tiempoPresionado);
         });
 
-
-        // GIRO DE LA RULETA
         canvas.addEventListener("click", () => {
             if (!puedeGirar) {
                 alert("Por favor, primero ingresá y valida un código de un solo uso.");
@@ -487,7 +509,6 @@
             }
             puedeGirar = false;
 
-            // Filtro estricto: Bloquea premios 16, 17 y 18 (índices 15, 16 y 17)
             let indicesPermitidos = [];
             for (let i = 0; i < totalPremios; i++) {
                 if (i !== 15 && i !== 16 && i !== 17) {
@@ -503,7 +524,6 @@
 
             canvas.style.transform = `rotate(${gradosRotacionFinal}deg)`;
 
-            // Consumir el cupón inmediatamente de la memoria local
             let listaTokens = obtenerTokensDeAlmacenamiento();
             listaTokens = listaTokens.filter(t => t !== tokenActualValido);
             guardarTokensEnAlmacenamiento(listaTokens);
@@ -522,4 +542,5 @@
         dibujarRuleta();
     </script>
 </body>
-</html>
+            </html>
+            
