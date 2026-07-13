@@ -55,7 +55,7 @@ function iniciarGiro() {
     let velocidad = vInicial;
     const desaceleracion = 0.985;
 
-    function animar() {
+    async function animar() {
         currentRotation += velocidad;
         velocidad *= desaceleracion;
         drawWheel();
