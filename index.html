@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jugá y Ganá - Ruleta de Premios</title>
-    <!-- Google Fonts para lograr la tipografía del diseño -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -25,7 +25,6 @@
             position: relative;
         }
 
-        /* Detalles estéticos (Garabatos del diseño original) */
         .decoracion-top {
             position: absolute;
             top: 20px;
@@ -66,12 +65,11 @@
             font-size: 55px;
             font-weight: 900;
             text-transform: uppercase;
-            color: #ff69b4; /* Rosa Canva */
+            color: #ff69b4;
             text-shadow: 2px 2px 0px #000;
             letter-spacing: 1px;
             margin-bottom: 15px;
             user-select: none;
-            cursor: pointer;
         }
 
         .subtitulo {
@@ -84,64 +82,6 @@
             padding: 0 20px;
         }
 
-        /* Contenedor de la Ruleta */
-        .ruleta-wrapper {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto 30px auto;
-        }
-
-        /* Indicador / Flecha de selección */
-        .marcador {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #000;
-            z-index: 100;
-        }
-
-        /* Canvas de la Ruleta */
-        #canvas-ruleta {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
-            cursor: pointer;
-        }
-
-        /* Centro de Corazón exacto al diseño */
-        .centro-corazon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background-color: #ff69b4;
-            border: 8px solid #000;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        .centro-corazon::before {
-            content: '♥';
-            font-size: 65px;
-            color: #000;
-            margin-top: -5px;
-        }
-
-        /* Sección de Cupones / Tokens */
         .seccion-token {
             background: #fff;
             padding: 15px;
@@ -172,7 +112,59 @@
             margin-left: 5px;
         }
 
-        /* Modal / Alerta de Premio y Panel Admin */
+        .ruleta-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 30px auto;
+        }
+
+        .marcador {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #000;
+            z-index: 100;
+        }
+
+        #canvas-ruleta {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+
+        .centro-corazon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background-color: #ff69b4;
+            border: 8px solid #000;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .centro-corazon::before {
+            content: '♥';
+            font-size: 65px;
+            color: #000;
+            margin-top: -5px;
+        }
+
         .pop-up-premio {
             display: none;
             position: fixed;
@@ -222,7 +214,6 @@
             cursor: pointer;
         }
 
-        /* PIE DE PÁGINA CORREGIDO */
         .pie-pagina {
             font-size: 12px;
             font-weight: 700;
@@ -252,64 +243,10 @@
             width: 28px;
             height: 28px;
         }
-
-        /* DISEÑO PANEL DE CONTROL OCULTO (MODAL) */
-        .panel-admin-contenido {
-            background: #111;
-            color: #fff;
-            border: 3px solid #ff69b4;
-            max-width: 450px;
-            width: 100%;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: left;
-        }
-        .panel-admin-contenido h3 {
-            color: #ff69b4;
-            margin-bottom: 15px;
-            font-size: 20px;
-            text-transform: uppercase;
-        }
-        .panel-admin-contenido textarea {
-            width: 100%;
-            height: 150px;
-            margin: 15px 0;
-            background: #222;
-            color: #00ff00;
-            border: 1px solid #444;
-            font-family: monospace;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .btn-admin {
-            background: #ff69b4;
-            border: none;
-            padding: 10px 15px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            width: 100%;
-            font-size: 14px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-        .btn-cerrar-admin {
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 8px;
-            width: 100%;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Garabatos vectorizados recreados en SVG -->
     <svg class="decoracion-top" viewBox="0 0 100 40"><path d="M10,30 Q25,10 40,30 T70,30 T100,10" fill="none" stroke="black" stroke-width="2"/></svg>
     <svg class="decoracion-bottom" viewBox="0 0 100 40"><path d="M0,20 Q25,40 50,20 T100,20" fill="none" stroke="black" stroke-width="2"/></svg>
 
@@ -318,27 +255,23 @@
         <h1 class="titulo-gana" id="boton-secreto-titulo">Ganá</h1>
         <p class="subtitulo">Girá la ruleta para descubrir tu premio sorpresa</p>
 
-        <!-- Bloque de validación de cupones -->
         <div class="seccion-token" id="bloque-codigo">
             <p style="font-size: 12px; font-weight:700; margin-bottom: 8px; text-transform:uppercase;">Ingresa tu código de un solo uso:</p>
             <input type="text" id="input-token" placeholder="CODIGO-XXXX">
-            <button onclick="validarToken()">Validar</button>
+            <button id="btn-validar">Validar</button>
         </div>
 
-        <!-- Ruleta -->
         <div class="ruleta-wrapper">
             <div class="marcador"></div>
             <div class="centro-corazon"></div>
             <canvas id="canvas-ruleta" width="500" height="500"></canvas>
         </div>
 
-        <!-- PIE DE PÁGINA ACTUALIZADO -->
         <p class="pie-pagina">
             Enviame la Captura del Premio a<br>
             <span class="usuario-telegram">@Pinklady_04</span>
         </p>
         <div class="contenedor-logo-telegram">
-            <!-- Icono SVG Oficial de Telegram -->
             <svg class="logo-telegram" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="12" fill="#0088CC"/>
                 <path d="M16.56 8.16L6.59 12.01C5.91 12.28 5.91 12.66 6.47 12.83L9.03 13.63L14.95 9.89C15.23 9.72 15.48 9.81 15.27 10L10.48 14.33L10.3 16.89C10.55 16.89 10.66 16.78 10.8 16.64L12.01 15.47L14.52 17.32C14.98 17.58 15.31 17.44 15.43 16.89L17.08 9.12C17.25 8.44 16.82 8.13 16.56 8.16Z" fill="white"/>
@@ -346,34 +279,37 @@
         </div>
     </div>
 
-    <!-- Emergente de Ganador -->
     <div class="pop-up-premio" id="pop-up">
         <div class="contenido-pop-up">
             <h2>¡Felicidades!</h2>
             <p>Ganaste: <br><span id="texto-premio" style="color:#000; font-size:22px;"></span></p>
             <p style="font-size: 12px; color: #777;">Recordá sacar una captura de pantalla completa ahora mismo.</p>
-            <button onclick="cerrarPopup()">Genial</button>
+            <button id="btn-cerrar-popup">Genial</button>
         </div>
     </div>
 
-    <!-- PANEL DE ADMINISTRADOR OCULTO (MODAL INVISIBLE) -->
-    <div class="pop-up-premio" id="pop-up-admin">
-        <div class="panel-admin-contenido">
-            <h3>Panel de Control Secreto</h3>
-            <p style="font-size:12px; color:#bbb;">Desde aquí controlas los cupones guardados de forma segura.</p>
-            
-            <textarea id="lista-tokens-generados" readonly placeholder="Los códigos nuevos aparecerán aquí... Copialos y guardalos bien."></textarea>
-            
-            <button class="btn-admin" onclick="generarNuevosTokens()">Generar 100 códigos nuevos</button>
-            <button class="btn-admin" style="background:#555; color:#fff;" onclick="verCuponesRestantes()">Ver cuántos cupones quedan activos</button>
-            <button class="btn-cerrar-admin" onclick="cerrarAdmin()">Cerrar Panel</button>
-        </div>
-    </div>
+    <!-- CARGA DE SDKs DE FIREBASE V10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        import { getDatabase, ref, get, remove, child } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-    <script>
-        // CONTRASEÑA MAESTRA: Cambia "1234" por la palabra o número que tú quieras.
-        const CONTRASEÑA_ADMIN = "4251";
+        // Tus credenciales oficiales vinculadas
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
+            authDomain: "ruletapremios-acef9.firebaseapp.com",
+            projectId: "ruletapremios-acef9",
+            storageBucket: "ruletapremios-acef9.firebasestorage.app",
+            messagingSenderId: "1023792024330",
+            appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3",
+            measurementId: "G-43HGPV8SZ8"
+        };
 
+        const app = initializeApp(firebaseConfig);
+        const rtdb = getDatabase(app);
+        const db = getFirestore(app);
+
+        // Lógica de Premios
         const premios = [
             "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
             "VIDEOLLAMADA 2MIN (denoche)", "VIDEOLLAMADA 5MIN (denoche)", "DICKRATE CON FOTITO DE REGALO",  
@@ -388,6 +324,7 @@
         const ctx = canvas.getContext("2d");
         let puedeGirar = false; 
         let tokenActualValido = "";
+        let tipoBaseDatos = "rtdb"; // Por defecto intenta leer Realtime Database
 
         function dibujarRuleta() {
             const anguloSector = (2 * Math.PI) / totalPremios;
@@ -416,99 +353,60 @@
             }
         }
 
-        function obtenerTokensDeAlmacenamiento() {
-            const tokens = localStorage.getItem("tokens_ruleta");
-            return tokens ? JSON.parse(tokens) : [];
-        }
-
-        function guardarTokensEnAlmacenamiento(lista) {
-            localStorage.setItem("tokens_ruleta", JSON.stringify(lista));
-        }
-
-        function validarToken() {
+        // Validación inteligente en Firebase (Busca tanto en Firestore como en Realtime Database)
+        async function validarToken() {
             const input = document.getElementById("input-token").value.trim().toUpperCase();
-            let listaTokens = obtenerTokensDeAlmacenamiento();
+            if (!input) {
+                alert("Por favor ingresa un código.");
+                return;
+            }
 
-            if (listaTokens.includes(input)) {
-                tokenActualValido = input;
-                puedeGirar = true;
-                alert("¡Código válido! Ya podés girar la ruleta haciendo click sobre ella.");
-                document.getElementById("bloque-codigo").style.opacity = "0.5";
-                document.getElementById("input-token").disabled = true;
-            } else {
-                alert("Código inválido o ya utilizado. Por favor verifica.");
+            try {
+                // 1. Intento buscar en Realtime Database (Ruta: tokens/CODIGO)
+                const rtdbRef = ref(rtdb, `tokens/${input}`);
+                const snapshot = await get(rtdbRef);
+                
+                if (snapshot.exists()) {
+                    tipoBaseDatos = "rtdb";
+                    activarGiro(input);
+                    return;
+                }
+
+                // 2. Si no lo encuentra, intenta buscar en Cloud Firestore (Colección: tokens, Documento: CODIGO)
+                const firestoreRef = doc(db, "tokens", input);
+                const docSnap = await getDoc(firestoreRef);
+
+                if (docSnap.exists()) {
+                    tipoBaseDatos = "firestore";
+                    activarGiro(input);
+                    return;
+                }
+
+                alert("Código inválido, expirado o ya utilizado.");
+
+            } catch (error) {
+                console.error("Error al conectar con Firebase: ", error);
+                alert("Hubo un error de conexión con la base de datos.");
             }
         }
 
-        function abrirAdminConPassword() {
-            const intento = prompt("Introduce la contraseña de Administrador:");
-            if (intento === CONTRASEÑA_ADMIN) {
-                document.getElementById("pop-up-admin").style.display = "flex";
-                document.getElementById("lista-tokens-generados").value = "";
-            } else if (intento !== null) {
-                alert("Contraseña incorrecta. Acceso denegado.");
-            }
+        function activarGiro(codigo) {
+            tokenActualValido = codigo;
+            puedeGirar = true;
+            alert("¡Código verificado en Firebase correctamente! Haz click en la ruleta para girar.");
+            document.getElementById("bloque-codigo").style.opacity = "0.5";
+            document.getElementById("input-token").disabled = true;
         }
 
-        function generarNuevosTokens() {
-            let nuevosTokens = [];
-            for (let i = 0; i < 100; i++) {
-                const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-                nuevosTokens.push(codigoUnico);
-            }
-            let listaExistente = obtenerTokensDeAlmacenamiento();
-            guardarTokensEnAlmacenamiento(listaExistente.concat(nuevosTokens));
-            
-            document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
-            alert("¡Éxito! Se inyectaron 100 nuevos códigos. Cópialos del recuadro verde antes de cerrar.");
-        }
-
-        function verCuponesRestantes() {
-            let listaExistente = obtenerTokensDeAlmacenamiento();
-            alert(`Actualmente hay ${listaExistente.length} cupones válidos listos en el sistema.`);
-            if(listaExistente.length > 0) {
-                document.getElementById("lista-tokens-generados").value = "CUPONES ACTIVOS EN EL SISTEMA:\n\n" + listaExistente.join("\n");
-            }
-        }
-
-        function cerrarAdmin() {
-            document.getElementById("pop-up-admin").style.display = "none";
-        }
-
-        let teclasPresionadas = {};
-        window.addEventListener('keydown', (e) => {
-            teclasPresionadas[e.key.toLowerCase()] = true;
-            if (teclasPresionadas['a'] && teclasPresionadas['s'] && teclasPresionadas['d']) {
-                abrirAdminConPassword();
-                teclasPresionadas = {};
-            }
-        });
-        window.addEventListener('keyup', (e) => {
-            teclasPresionadas[e.key.toLowerCase()] = false;
-        });
-
-        const tituloBoton = document.getElementById("boton-secreto-titulo");
-        let tiempoPresionado;
-        tituloBoton.addEventListener("touchstart", () => {
-            tiempoPresionado = setTimeout(abrirAdminConPassword, 2500);
-        });
-        tituloBoton.addEventListener("touchend", () => {
-            clearTimeout(tiempoPresionado);
-        });
-        tituloBoton.addEventListener("mousedown", () => {
-            tiempoPresionado = setTimeout(abrirAdminConPassword, 2500);
-        });
-        tituloBoton.addEventListener("mouseup", () => {
-            clearTimeout(tiempoPresionado);
-        });
-
-        canvas.addEventListener("click", () => {
+        // Al hacer click en la ruleta
+        canvas.addEventListener("click", async () => {
             if (!puedeGirar) {
-                alert("Por favor, primero ingresá y valida un código de un solo uso.");
+                alert("Por favor, primero ingresá y valida un código.");
                 return;
             }
             puedeGirar = false;
 
+            // Bloquear premios pesados
             let indicesPermitidos = [];
             for (let i = 0; i < totalPremios; i++) {
                 if (i !== 15 && i !== 16 && i !== 17) {
@@ -524,9 +422,16 @@
 
             canvas.style.transform = `rotate(${gradosRotacionFinal}deg)`;
 
-            let listaTokens = obtenerTokensDeAlmacenamiento();
-            listaTokens = listaTokens.filter(t => t !== tokenActualValido);
-            guardarTokensEnAlmacenamiento(listaTokens);
+            // ELIMINAR EL TOKEN EN TIEMPO REAL DE FIREBASE MIENTRAS GIRA
+            try {
+                if (tipoBaseDatos === "rtdb") {
+                    await remove(ref(rtdb, `tokens/${tokenActualValido}`));
+                } else {
+                    await deleteDoc(doc(db, "tokens", tokenActualValido));
+                }
+            } catch (e) {
+                console.warn("No se pudo eliminar el token, pero el juego continuará.", e);
+            }
 
             setTimeout(() => {
                 document.getElementById("texto-premio").innerText = premios[indiceGanadorAleatorio];
@@ -534,13 +439,14 @@
             }, 4000);
         });
 
-        function cerrarPopup() {
+        document.getElementById("btn-validar").addEventListener("click", validarToken);
+        document.getElementById("btn-cerrar-popup").addEventListener("click", () => {
             document.getElementById("pop-up").style.display = "none";
             location.reload();
-        }
+        });
 
         dibujarRuleta();
     </script>
 </body>
-            </html>
+        </html>
             
