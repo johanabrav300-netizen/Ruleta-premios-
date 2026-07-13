@@ -1,68 +1,166 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ruleta de Premios</title>
-<link rel="stylesheet" href="./style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jugá y Ganá</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ededed;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ondas decorativas superiores e inferiores simuladas */
+        .decoracion-superior {
+            position: absolute;
+            top: 20px;
+            width: 80%;
+            max-width: 300px;
+            opacity: 0.8;
+        }
+
+        .contenedor-principal {
+            text-align: center;
+            margin-top: 80px;
+            z-index: 2;
+            width: 100%;
+            max-width: 450px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .subtitulo-juga {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-style: italic;
+            color: #222;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .titulo-gana {
+            font-size: 64px;
+            font-weight: 900;
+            color: #ff69b4; /* Rosa idéntico */
+            text-shadow: 2px 2px 0px #000;
+            margin: -5px 0 20px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .bajada-texto {
+            font-size: 14px;
+            font-weight: 700;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .ruleta-box {
+            position: relative;
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            width: 340px;
+            height: 340px;
+        }
+
+        /* Aguja marcador negra centralizada arriba */
+        .marcador {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #000;
+            z-index: 10;
+        }
+
+        .btn-girar {
+            background-color: #ff69b4;
+            color: white;
+            border: 2px solid #000;
+            padding: 12px 45px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0px 4px 0px #000;
+            transition: transform 0.1s;
+        }
+
+        .btn-girar:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: 700;
+            font-size: 16px;
+            min-height: 45px;
+            padding: 0 10px;
+        }
+
+        .footer-texto {
+            font-size: 13px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+            z-index: 2;
+        }
+    </style>
 </head>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+<body>
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
-    authDomain: "ruletapremios-acef9.firebaseapp.com",
-    projectId: "ruletapremios-acef9",
-    storageBucket: "ruletapremios-acef9.firebasestorage.app",
-    messagingSenderId: "1023792024330",
-    appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3",
-    measurementId: "G-43HGPV8SZ8"
-  };
+    <!-- Línea decorativa simulada arriba -->
+    <svg class="decoracion-superior" viewBox="0 0 100 20" fill="none" stroke="black" stroke-width="1">
+        <path d="M10,15 Q25,5 40,15 T70,15 T90,5" />
+    </svg>
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-      </script>
-    <body>
+    <div class="contenedor-principal">
+        <h2 class="subtitulo-juga">Jugá y</h2>
+        <h1 class="titulo-gana">Ganá</h1>
+        <div class="bajada-texto">SORTEO EXCLUSIVO DE PREMIOS</div>
 
-<div class="container">
+        <div class="ruleta-box">
+            <div class="marcador"></div>
+            <canvas id="wheel" width="600" height="600"></canvas>
+        </div>
 
-    <h1>🎉 RULETA DE PREMIOS 🎉</h1>
-
-    <input
-        type="text"
-        id="codigo"
-        placeholder="Ingrese su código"
-    >
-
-    <div class="wheel-container">
-
-        <div class="pointer"></div>
-
-        <canvas
-            id="wheel"
-            width="600"
-            height="600">
-        </canvas>
-
+        <button class="btn-girar" id="spinBtn">GIRAR</button>
+        <div id="result"></div>
     </div>
 
-    <button id="spinBtn">
-        GIRAR
-    </button>
+    <div class="footer-texto">
+        Mandanos la captura a tu contacto
+    </div>
 
-    <p id="result"></p>
-
-</div>
-
-<script type="module" src="./script.js"></script>
-      
-
+    <script src="script.js"></script>
 </body>
 </html>
