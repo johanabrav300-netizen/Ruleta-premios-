@@ -1,9 +1,10 @@
+// --- CONFIGURACIÓN ESTÉTICA ---
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinBtn");
 const result = document.getElementById("result");
 
-// Lista completa de las 20 porciones idénticas a tu solicitud
+// Lista completa de las 20 porciones que coinciden con tu diseño
 const visualPrizes = [
   "PREMIO 1", "PREMIO 2", "PREMIO 3", "PREMIO 4", "PREMIO 5",
   "PREMIO 6", "PREMIO 7", "PREMIO 8", "PREMIO 9", "PREMIO 10",
@@ -16,19 +17,17 @@ const angle = (2 * Math.PI) / numPremios;
 let isSpinning = false;
 let currentRotation = 0;
 
-// Renderizado nativo de la ruleta igual a la foto
+// Renderizado nativo de la ruleta igual a la foto (Rosa y Negro)
 function drawWheel() {
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
     const radius = canvas.width / 2 - 10;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(currentRotation);
 
-    // 1. Dibujar los 20 sectores alternando colores rosa y negro de la imagen
     for (let i = 0; i < numPremios; i++) {
         const startAngle = i * angle;
         const endAngle = startAngle + angle;
@@ -38,11 +37,9 @@ function drawWheel() {
         ctx.arc(0, 0, radius, startAngle, endAngle);
         ctx.closePath();
 
-        // Colores alternados precisos
         ctx.fillStyle = (i % 2 === 0) ? "#ff69b4" : "#111111";
         ctx.fill();
 
-        // Texto interno de cada porción (ej: "P. 1")
         ctx.save();
         ctx.rotate(startAngle + angle / 2);
         ctx.fillStyle = (i % 2 === 0) ? "#000000" : "#ffffff";
@@ -52,23 +49,23 @@ function drawWheel() {
         ctx.restore();
     }
 
-    // 2. Anillo de separación negro interno
+    // Anillo de separación negro interno
     ctx.beginPath();
     ctx.arc(0, 0, radius * 0.65, 0, 2 * Math.PI);
     ctx.lineWidth = 14;
     ctx.strokeStyle = "#000000";
     ctx.stroke();
 
-    // 3. Centro de la ruleta enteramente Rosa
+    // Centro de la ruleta enteramente Rosa
     ctx.beginPath();
     ctx.arc(0, 0, radius * 0.62, 0, 2 * Math.PI);
     ctx.fillStyle = "#ff69b4";
     ctx.fill();
 
-    // 4. Dibujar el Corazón Negro del Centro exacto
+    // Corazón Negro del Centro exacto
     ctx.save();
     ctx.fillStyle = "#000000";
-    ctx.translate(0, -10); // Centrado estético del corazón
+    ctx.translate(0, -10);
     const d = 90;
     ctx.beginPath();
     ctx.moveTo(0, 0 + d / 4);
@@ -83,9 +80,9 @@ function drawWheel() {
     ctx.restore();
 }
 
+// Función física de la animación
 function iniciarGiro() {
     result.innerText = "✨ ¡Mucha suerte...!";
-    // Fuerza un giro largo y elegante
     const vInicial = Math.random() * 0.3 + 0.4; 
     let velocidad = vInicial;
     const desaceleracion = 0.988;
@@ -99,39 +96,63 @@ function iniciarGiro() {
             requestAnimationFrame(animar);
         } else {
             isSpinning = false;
-            await calcularPremio();
+            await obtenerPremioDelServidor();
         }
     }
     animar();
 }
 
-async function calcularPremio() {
-    // Cálculo de la porción matemática apuntada por el marcador superior (3 * Math.PI / 2)
-    const ratacionNormalizada = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
-    const anguloMarcador = (3 * Math.PI / 2) % (2 * Math.PI);
-    const anguloPremio = (anguloMarcador + ratacionNormalizada) % (2 * Math.PI);
-    let index = Math.floor(anguloPremio / angle);
+// Lógica de validación del Token e inicio
+spinBtn.addEventListener("click", async () => {
+    if (isSpinning) return;
 
-    result.innerText = "🔄 Validando tu premio de forma segura...";
+    // Tomamos el código que el cliente escribió en el input de la pantalla
+    const inputCodigo = document.getElementById("tokenInput").value.trim().toUpperCase();
+    
+    if (!inputCodigo) {
+        alert("Por favor, ingrese un código válido para jugar.");
+        return;
+    }
+
+    result.innerText = "🔍 Validando tu código de acceso...";
 
     try {
-        const respuesta = await fetch('https://ruleta-backend-eight.vercel.app/api/sorteo');
+        // Consultamos a tu Vercel si este token es válido y no ha sido usado
+        const respuesta = await fetch('https://ruleta-backend-eight.vercel.app/api/sorteo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: inputCodigo })
+        });
+
         const datos = await respuesta.json();
 
-        result.innerHTML = `<span style="color:#ff69b4; font-size:20px;">🎉 ¡Ganaste ${datos.nombreRuleta}!</span><br><small style="color:#222">${datos.detallePremio}</small><br><b style="font-size:13px; background:#000; color:#fff; padding:3px 8px; display:inline-block; margin-top:5px; border-radius:4px;">TOKEN: ${datos.codigoSecreto}</b>`;
+        if (respuesta.status === 200) {
+            // Guardamos temporalmente el premio en una variable global oculta para mostrarlo al frenar
+            window.premioGanadoSeguro = datos;
+            isSpinning = true;
+            iniciarGiro();
+        } else {
+            result.innerText = `❌ ${datos.error || "Código inválido o ya utilizado."}`;
+        }
 
-    } catch (error) {
-        console.error("Error backend:", error);
-        result.innerText = "❌ Error al validar el premio. Intenta de nuevo.";
+    } catch (e) {
+        console.error(e);
+        result.innerText = "❌ Error de conexión al validar. Intenta nuevamente.";
+    }
+});
+
+// Muestra el premio final una vez que la ruleta se detiene por completo
+async function obtenerPremioDelServidor() {
+    const datos = window.premioGanadoSeguro;
+    if (datos) {
+        result.innerHTML = `
+            <span style="color:#ff69b4; font-size:20px;">🎉 ¡Ganaste ${datos.nombreRuleta}!</span><br>
+            <small style="color:#222">${datos.detallePremio}</small><br>
+            <b style="font-size:13px; background:#000; color:#fff; padding:3px 8px; display:inline-block; margin-top:5px; border-radius:4px;">CÓDIGO DE RECLAMO: ${datos.codigoSecreto}</b>
+        `;
     }
 }
 
-spinBtn.addEventListener("click", () => {
-    if (isSpinning) return;
-    isSpinning = true;
-    iniciarGiro();
-});
-
-// Inicializar render inicial sin requerir archivos pesados
+// Dibujo inicial de la ruleta
 drawWheel();
-                                            
+          
