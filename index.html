@@ -347,39 +347,16 @@
     <div class="pop-up-premio" id="pop-up-admin">
         <div class="panel-admin-contenido">
             <h3>Panel de Control Secreto</h3>
-            <p style="font-size:12px; color:#bbb;">Los códigos generados aquí se subirán directamente a tu Firebase de forma automática.</p>
-            
+            <p style="font-size:12px; color:#bbb;">Los códigos generados aquí se subirán directamente a tu Firebase.</p>
             <textarea id="lista-tokens-generados" readonly placeholder="Los códigos nuevos aparecerán aquí..."></textarea>
-            
             <button class="btn-admin" id="btn-generar-100">Generar 100 códigos nuevos en Firebase</button>
             <button class="btn-admin" style="background:#555; color:#fff;" id="btn-ver-restantes">Ver cuántos cupones quedan activos</button>
             <button class="btn-cerrar-admin" id="btn-cerrar-admin">Cerrar Panel</button>
         </div>
     </div>
 
-    <!-- CARGA DE SDKs DE FIREBASE V10 -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-        import { getDatabase, ref, get, remove, set } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
-        import { getFirestore, doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
-
-        // CONFIGURACIÓN DE TU PROYECTO
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
-            authDomain: "ruletapremios-acef9.firebaseapp.com",
-            projectId: "ruletapremios-acef9",
-            storageBucket: "ruletapremios-acef9.firebasestorage.app",
-            messagingSenderId: "1023792024330",
-            appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3",
-            measurementId: "G-43HGPV8SZ8"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const rtdb = getDatabase(app);
-        const db = getFirestore(app);
-
-        const CONTRASEÑA_ADMIN = "1234";
-
+    <!-- EL DIBUJO DE LA RULETA SE EJECUTA INMEDIATAMENTE AQUÍ -->
+    <script>
         const premios = [
             "10MIN SEXTING (denoche)", "5MIN SEXTING (denoche)", "VIDEOLLAMADA 1MIN (denoche)", 
             "VIDEOLLAMADA 2MIN (denoche)", "VIDEOLLAMADA 5MIN (denoche)", "DICKRATE CON FOTITO DE REGALO",  
@@ -388,13 +365,9 @@
             "VALE OTRA TIRADA", "ENCUENTRO 30MIN", "ENCUENTRO 1 HORA", "ENCUENTRO TRIO CON MI PAREJA", 
             "3 FOTOS ZINGS", "5 FOTOS Y 2 VIDEOS ZINGS"
         ];
-
         const totalPremios = premios.length;
         const canvas = document.getElementById("canvas-ruleta");
         const ctx = canvas.getContext("2d");
-        let puedeGirar = false; 
-        let tokenActualValido = "";
-        let tipoBaseDatos = "rtdb"; 
 
         function dibujarRuleta() {
             const anguloSector = (2 * Math.PI) / totalPremios;
@@ -422,138 +395,131 @@
                 ctx.restore();
             }
         }
+        dibujarRuleta();
+    </script>
 
-        // Validación en Firebase
+    <!-- LOGICA DE FIREBASE AISLADA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        import { getDatabase, ref, get, remove, set } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        import { getFirestore, doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVI02A9vOeuKqjCRVA-WiIAFeluazJALM",
+            authDomain: "ruletapremios-acef9.firebaseapp.com",
+            projectId: "ruletapremios-acef9",
+            storageBucket: "ruletapremios-acef9.firebasestorage.app",
+            messagingSenderId: "1023792024330",
+            appId: "1:1023792024330:web:e6eb093cd009cc3ff388f3",
+            measurementId: "G-43HGPV8SZ8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const rtdb = getDatabase(app);
+        const db = getFirestore(app);
+
+        const CONTRASEÑA_ADMIN = "1234";
+        let puedeGirar = false; 
+        let tokenActualValido = "";
+        let tipoBaseDatos = "rtdb"; 
+
         async function validarToken() {
             const input = document.getElementById("input-token").value.trim().toUpperCase();
-            if (!input) {
-                alert("Por favor ingresa un código.");
-                return;
-            }
+            if (!input) { alert("Por favor ingresa un código."); return; }
 
             try {
                 const rtdbRef = ref(rtdb, `tokens/${input}`);
                 const snapshot = await get(rtdbRef);
-                
-                if (snapshot.exists()) {
-                    tipoBaseDatos = "rtdb";
-                    activarGiro(input);
-                    return;
-                }
+                if (snapshot.exists()) { tipoBaseDatos = "rtdb"; activarGiro(input); return; }
 
                 const firestoreRef = doc(db, "tokens", input);
                 const docSnap = await getDoc(firestoreRef);
+                if (docSnap.exists()) { tipoBaseDatos = "firestore"; activarGiro(input); return; }
 
-                if (docSnap.exists()) {
-                    tipoBaseDatos = "firestore";
-                    activarGiro(input);
-                    return;
-                }
-
-                alert("Código inválido, expirado o ya utilizado.");
-
+                alert("Código inválido o ya utilizado.");
             } catch (error) {
-                console.error("Error Firebase: ", error);
-                alert("Error de conexión con la base de datos.");
+                console.error(error);
+                alert("Error de conexión. Revisa las reglas de lectura de tu Firebase.");
             }
         }
 
         function activarGiro(codigo) {
             tokenActualValido = codigo;
             puedeGirar = true;
-            alert("¡Código válido detectado en Firebase! Ya podés girar la ruleta haciendo click sobre ella.");
+            alert("¡Código correcto! Haz click en la ruleta rosa para girar.");
             document.getElementById("bloque-codigo").style.opacity = "0.5";
             document.getElementById("input-token").disabled = true;
         }
 
-        // PANEL SECRETO CON FIREBASE
         async function generarNuevosTokens() {
             let nuevosTokens = [];
-            document.getElementById("lista-tokens-generados").value = "Subiendo códigos a Firebase, por favor espera...";
-            
+            document.getElementById("lista-tokens-generados").value = "Subiendo códigos...";
             try {
                 for (let i = 0; i < 100; i++) {
                     const codigoUnico = "TOK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
                     nuevosTokens.push(codigoUnico);
-                    
-                    // Sube a Realtime Database y Firestore para asegurar compatibilidad total
                     await set(ref(rtdb, `tokens/${codigoUnico}`), true);
                     await setDoc(doc(db, "tokens", codigoUnico), { activo: true });
                 }
-                
                 document.getElementById("lista-tokens-generados").value = nuevosTokens.join("\n");
-                alert("¡Éxito total! Se crearon 100 nuevos códigos en tu Firebase.");
-            } catch (e) {
-                console.error(e);
-                alert("Error al subir los códigos a Firebase.");
-            }
+                alert("¡Creados 100 códigos en Firebase!");
+            } catch (e) { alert("Error al subir. Revisa las reglas de escritura en Firebase."); }
         }
 
         async function verCuponesRestantes() {
             try {
                 const snapshot = await get(ref(rtdb, "tokens"));
-                let totalRTDB = 0;
-                if (snapshot.exists()) {
-                    totalRTDB = Object.keys(snapshot.val()).length;
-                }
-                alert(`Actualmente quedan exactamente ${totalRTDB} cupones válidos listos en Firebase.`);
-            } catch (e) {
-                alert("No se pudo obtener el conteo en tiempo real.");
-            }
+                let totalRTDB = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                alert(`Quedan exactamente ${totalRTDB} cupones válidos.`);
+            } catch (e) { alert("No se pudo leer el conteo."); }
         }
 
-        // Abrir menú con contraseña
         function abrirAdminConPassword() {
             const intento = prompt("Introduce la contraseña de Administrador:");
             if (intento === CONTRASEÑA_ADMIN) {
                 document.getElementById("pop-up-admin").style.display = "flex";
-                document.getElementById("lista-tokens-generados").value = "";
-            } else if (intento !== null) {
-                alert("Contraseña incorrecta. Acceso denegado.");
             }
         }
 
-        // Eventos ocultos para abrir administrador
         const tituloBoton = document.getElementById("boton-secreto-titulo");
         let tiempoPresionado;
-        tituloBoton.addEventListener("touchstart", () => { tiempoPresionado = setTimeout(abrirAdminConPassword, 2500); });
-        tituloBoton.addEventListener("touchend", () => { clearTimeout(tiempoPresionado); });
         tituloBoton.addEventListener("mousedown", () => { tiempoPresionado = setTimeout(abrirAdminConPassword, 2500); });
         tituloBoton.addEventListener("mouseup", () => { clearTimeout(tiempoPresionado); });
+        tituloBoton.addEventListener("touchstart", () => { tiempoPresionado = setTimeout(abrirAdminConPassword, 2500); });
+        tituloBoton.addEventListener("touchend", () => { clearTimeout(tiempoPresionado); });
 
-        // Giro de ruleta y eliminación
         canvas.addEventListener("click", async () => {
-            if (!puedeGirar) {
-                alert("Por favor, primero ingresá y valida un código.");
-                return;
-            }
+            if (!puedeGirar) { alert("Por favor, ingresá tu código."); return; }
             puedeGirar = false;
 
             let indicesPermitidos = [];
             for (let i = 0; i < totalPremios; i++) {
-                if (i !== 15 && i !== 16 && i !== 17) {
-                    indicesPermitidos.push(i);
-                }
+                if (i !== 15 && i !== 16 && i !== 17) indicesPermitidos.push(i);
             }
 
             const indiceGanadorAleatorio = indicesPermitidos[Math.floor(Math.random() * indicesPermitidos.length)];
             const anguloSectorGrados = 360 / totalPremios;
-            const gradosHaciaMarcador = 270;
-            const posicionCentroSector = (indiceGanadorAleatorio * anguloSectorGrados) + (anguloSectorGrados / 2);
-            const gradosRotacionFinal = 1800 + (gradosHaciaMarcador - posicionCentroSector);
+            const gradosRotacionFinal = 1800 + (270 - ((indiceGanadorAleatorio * anguloSectorGrados) + (anguloSectorGrados / 2)));
 
             canvas.style.transform = `rotate(${gradosRotacionFinal}deg)`;
 
-            // Elimina el token usado en tiempo real de Firebase
             try {
                 await remove(ref(rtdb, `tokens/${tokenActualValido}`));
                 await deleteDoc(doc(db, "tokens", tokenActualValido));
-            } catch (e) {
-                console.warn("No se pudo eliminar de la base de datos.", e);
-            }
+            } catch (e) {}
 
             setTimeout(() => {
                 document.getElementById("texto-premio").innerText = premios[indiceGanadorAleatorio];
                 document.getElementById("pop-up").style.display = "flex";
             }, 4000);
-        })
+        });
+
+        document.getElementById("btn-validar").addEventListener("click", validarToken);
+        document.getElementById("btn-generar-100").addEventListener("click", generarNuevosTokens);
+        document.getElementById("btn-ver-restantes").addEventListener("click", verCuponesRestantes);
+        document.getElementById("btn-cerrar-admin").addEventListener("click", () => { document.getElementById("pop-up-admin").style.display = "none"; });
+        document.getElementById("btn-cerrar-popup").addEventListener("click", () => { location.reload(); });
+    </script>
+</body>
+    </html>
+                
