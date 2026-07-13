@@ -69,20 +69,32 @@ function iniciarGiro() {
     animar();
 }
 
-function calcularPremio() {
-    const rotacionNormalizada = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
+async function calcularPremio() {
+    const ratacionNormalizada = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
     const anguloMarcador = (3 * Math.PI / 2) % (2 * Math.PI);
-    const anguloPremio = (anguloMarcador + rotacionNormalizada) % (2 * Math.PI);
+    const anguloPremio = (anguloMarcador + ratacionNormalizada) % (2 * Math.PI);
     let index = Math.floor(anguloPremio / angle);
 
-    // Bloqueo estricto: si cae en 16, 17 o 18, lo cambiamos al Premio 1
-    const premioActual = prizes[index];
-    if (premioActual === "Premio 16" || premioActual === "Premio 17" || premioActual === "Premio 18") {
-        index = 0; 
-    }
+    // Guardamos el premio visual de la ruleta física
+    let premioVisual = prizes[index];
 
-    result.innerText = `🎉 ¡Ganaste: ${prizes[index]}!`;
+    // Cambiamos el texto en pantalla por un mensaje temporal de carga
+    result.innerText = "🔄 Validando tu premio de forma segura...";
+
+    try {
+        // Consultamos a tu backend en Vercel
+        const respuesta = await fetch('https://ruleta-backend-eight.vercel.app/api/sorteo');
+        const datos = await respuesta.json();
+
+        // Mostramos el resultado real que envió el servidor seguro
+        result.innerText = `🎉 ¡Ganaste: ${datos.nombreRuleta}! \n Tu código es: ${datos.codigoSecreto}`;
+
+    } catch (error) {
+        console.error("Error al obtener el premio seguro:", error);
+        result.innerText = "❌ Error al validar el premio. Intenta de nuevo.";
+    }
 }
+
 
 spinBtn.addEventListener("click", async () => {
     if (isSpinning) return;
