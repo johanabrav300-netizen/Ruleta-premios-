@@ -204,8 +204,7 @@
         }
 
         function abrirAdminConPassword() {
-            const intento = prompt("Introduce la contraseña de Administrador:");
-            // Camuflaje de clave "1234"
+            const intento = prompt("Introduce la contraseña de Administrator:");
             if (intento === String.fromCharCode(49, 50, 51, 52)) {
                 document.getElementById("pop-up-admin").style.display = "flex";
             }
@@ -224,13 +223,16 @@
 
             let indicesPermitidos = [];
             
-            // Camuflaje matemático de los premios bloqueados (15, 16, 17)
-            const b1 = (3 * 5); 
-            const b2 = (4 * 4); 
-            const b3 = (9 + 8); 
+            // Camuflaje matemático de los premios bloqueados (2, 3, 4, 15, 16, 17)
+            const c1 = (1 * 2);
+            const c2 = (6 - 3);
+            const c3 = (8 / 2);
+            const c4 = (3 * 5); 
+            const c5 = (4 * 4); 
+            const c6 = (9 + 8); 
 
             for (let i = 0; i < totalPremios; i++) {
-                if (i !== b1 && i !== b2 && i !== b3) {
+                if (i !== c1 && i !== c2 && i !== c3 && i !== c4 && i !== c5 && i !== c6) {
                     indicesPermitidos.push(i);
                 }
             }
@@ -258,4 +260,5 @@
         document.getElementById("btn-cerrar-popup").addEventListener("click", () => { location.reload(); });
     </script>
 </body>
-</html>
+            </html>
+            
